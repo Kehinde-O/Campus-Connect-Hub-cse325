@@ -1,0 +1,52 @@
+@page "/create"
+@page "/edit/{Id}"
+@inject IBulletinService Service
+@inject NavigationManager Nav
+@inject IAuthService Auth
+
+
+@code { [Parameter] public string? Id { get; set; }
+private DigitalBulletinBoard.Models.Bulletin model = new();
+private bool isEdit = false;
+}
+
+
+<h3>@(isEdit?"Edit Bulletin":"Create Bulletin")</h3>
+@if (!Auth.IsAuthenticated) { <p>You must be logged in to create or edit bulletins.</p> }
+else {
+<div>
+<label>Title</label>
+<input @bind="model.Title" />
+</div>
+<div>
+<label>Content</label>
+<textarea @bind="model.Content"></textarea>
+</div>
+<div>
+<button @onclick="Save">Save</button>
+<button @onclick="Cancel">Cancel</button>
+</div>
+}
+
+
+@code {
+protected override async Task OnInitializedAsync()
+{
+if (!string.IsNullOrEmpty(Id))
+{
+isEdit = true;
+var ex = await Service.GetByIdAsync(Id!);
+if (ex != null) model = ex;
+}
+}
+
+
+async Task Save()
+{
+model.Author = Auth.CurrentUser ?? "Anonymous";
+if (isEdit) await Service.UpdateAsync(model);
+else await Service.CreateAsync(model);
+Nav.NavigateTo("/bulletins");
+}
+void Cancel() => Nav.NavigateTo("/bulletins");
+}

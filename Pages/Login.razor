@@ -1,0 +1,40 @@
+@page "/login"
+@inject IAuthService Auth
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<div class="login">
+    <h3>Login</h3>
+
+    <div>
+        <label>User</label><br>
+        <input @bind="user" />
+    </div>
+
+    <div>
+        <label>Password</label><br>
+        <input type="password" @bind="password" />
+    </div>
+
+    <div>
+        <button @onclick="DoLogin" class="log">Login</button>
+    </div>
+</div>
+@code {
+    private string user = string.Empty;
+    private string password = string.Empty;
+
+    async Task DoLogin()
+    {
+        var ok = await Auth.LoginAsync(user, password);
+
+        if (ok)
+        {
+            Nav.NavigateTo("/bulletins");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Login failed");
+        }
+    }
+}

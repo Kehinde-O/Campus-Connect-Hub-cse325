@@ -1,0 +1,180 @@
+/* Add a black background color to the top navigation */
+body{
+    margin: 0;
+    padding: 0;
+}
+.top-row{
+  display: flex;
+  justify-content: space-between;
+  background: #083e86;
+  color: #ddd;
+  padding: 20px;
+}
+
+.nav-it{
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin-right: 80px;
+}
+.nav-it .navbar-brand{
+  border: solid 1px #083e86;
+  background-color: #7c022b;
+  color: white;
+  padding: 5px 10px 5px 10px;
+  border-radius: 2px;
+}
+.nav-it .navbar-brand:hover, .nav-it .navbar-brand:hover{
+  color:rgb(19, 1, 1);
+  background-color: rgb(20, 104, 104);
+  transition-duration: 0.5s;
+}
+.navbar-brand{
+  color: aliceblue;
+  text-decoration: none;
+}
+
+.topnav {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+  background-color: #588ed4;
+  padding: 15px;
+}
+.topnav .nav-link{
+  text-decoration: none;
+  color: white;
+  font-size: larger;
+  font-weight: 400;
+  cursor: pointer;
+}
+.topnav .nav-link:hover{
+  color: rgb(203, 255, 14);
+  transition: 0.5s;
+}
+.topnav .nav-link:focus{ 
+  color: #011e35;;
+} 
+
+#app {
+  position: relative;
+    /* allows it to size to content */
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-progress {
+  width: 80px;   /* adjust as you like */
+  height: 80px;
+  transform: rotate(-90deg);
+}
+
+.loading-progress circle {
+  fill: none;
+  stroke-width: 8;
+  r: 40%;
+  cx: 50%;
+  cy: 50%;
+}
+
+.loading-progress circle:first-child {
+  stroke: #ddd;
+}
+
+.loading-progress circle:last-child {
+  stroke: #4a90e2;
+  stroke-linecap: round;
+  stroke-dasharray: 251.2; /* approx for 40% radius circle */
+  stroke-dashoffset: 251.2;
+  animation: loading 2s infinite ease-in-out;
+}
+
+@keyframes loading {
+  0% {
+    stroke-dashoffset: 251.2;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 251.2;
+  }
+}
+
+.loading-progress-text {
+  position: absolute;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  right: 50px;
+  top: 50px;
+  bottom: 50px;
+}
+
+.container-fluid .navbar-brand{
+  margin-left: 80px;
+  font-weight: bolder;
+}
+.home-welcome h3{
+  color: #011e35;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: xx-large;
+}
+.home-welcome p{
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: large;
+}
+.main-content-topnav{
+  padding: 30px;
+}
+.table th{
+  font-family: 'Times New Roman', Times, serif;
+  color: #4a90e2;
+  font-size: larger;
+  padding: 15px;
+}
+.table td{
+  font-family:'Times New Roman', Times, serif;
+  line-height: 2em;
+  padding: 15px;
+}
+.edit, .delete{
+  text-decoration: none;
+  border: solid 1px #083e86;
+  background-color: #085e97;
+  color: white;
+  padding: 5px 10px 5px 10px;
+  margin-left: 20px;
+}
+.table h3, .login h3, .registration h3{
+  font-family: 'Times New Roman', Times, serif;
+  font-size: xx-large;
+}
+.login label, .registration label{
+  font-family: 'Times New Roman', Times, serif;
+  font-size: large;
+}
+.login input, .registration input{
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+.login .log, .registration .cancel, .registration .register{
+  text-decoration: none;
+  border: solid 1px #083e86;
+  background-color: #085e97;
+  color: white;
+  padding: 10px 10px 10px 10px;
+  border-radius: 2px;
+  margin-top: 10px;
+  cursor: pointer;
+  margin-right: 20px;
+
+}
+.log:hover, .register:hover, .cancel:hover{
+  color:rgb(19, 1, 1);
+  background-color: rgb(20, 104, 104);
+  transition-duration: 0.5s;
+}

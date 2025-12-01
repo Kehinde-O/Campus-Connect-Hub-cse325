@@ -1,0 +1,43 @@
+@page "/bulletins"
+@inject IBulletinService Service
+@inject IAuthService Auth
+
+<div class="table">
+    <h3>Bulletins</h3>
+    @if (items==null) { <p>Loading...</p> }
+    else {
+    <table>
+        <thead><tr><th>Title</th><th>Author</th><th>Date</th><th></th></tr></thead>
+        <tbody>
+        @foreach(var b in items)
+        {
+        <tr>
+            <td><a href="/bulletin/@b.Id">@b.Title</a></td>
+            <td>@b.Author</td>
+            <td>@b.CreatedAt.ToLocalTime().ToString("g")</td>
+        <td>
+            <a href="/edit/@b.Id" class="edit">Edit</a>
+            @if (Auth.IsAuthenticated)
+            {
+            <button @onclick="(()=>Delete(b.Id))" class="delete">Delete</button>
+        }
+        </td>
+        </tr>
+        }
+        </tbody>
+    </table>
+    }
+</div>
+
+@code {
+private List<DigitalBulletinBoard.Models.Bulletin>? items;
+protected override async Task OnInitializedAsync() => items = await Service.GetAllAsync();
+
+
+async Task Delete(string id)
+{
+if (!Auth.IsAuthenticated) return;
+await Service.DeleteAsync(id);
+items = await Service.GetAllAsync();
+}
+}

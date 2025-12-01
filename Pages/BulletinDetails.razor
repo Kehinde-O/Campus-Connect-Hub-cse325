@@ -1,0 +1,19 @@
+@page "/bulletin/{Id}"
+@inject IBulletinService Service
+@code { [Parameter] public string Id { get; set; } = string.Empty; private DigitalBulletinBoard.Models.Bulletin? item; }
+
+
+@if (item==null) { <p>Loading...</p> }
+else {
+<h3>@item.Title</h3>
+<p>@item.Content</p>
+<p><em>By @item.Author on @item.CreatedAt.ToLocalTime().ToString("f")</em></p>
+}
+
+
+@code {
+protected override async Task OnInitializedAsync()
+{
+item = await Service.GetByIdAsync(Id);
+}
+}

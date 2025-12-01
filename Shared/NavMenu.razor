@@ -1,0 +1,98 @@
+﻿@inject AuthenticationStateProvider AuthStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@implements IDisposable
+
+@inject IAuthService AuthService
+@inject NavigationManager Nav
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">DigitalBulletinBoard</a>
+
+       <!-- <button title="Navigation menu" class="navbar-toggler" //@onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button> -->
+    </div>
+    
+</div>
+
+<div class="topnav">
+  
+
+        <!-- Always visible -->
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/bulletins">
+                Bulletins
+            </NavLink>
+        </div>
+
+   
+            @if (AuthService.IsAuthenticated)
+        {
+            <!-- Only when logged in -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/create">
+                    Create Bulletin
+                </NavLink>
+            </div>
+            
+            <div class="nav-item px-3">
+            
+                <a class="navbar-brand" href="#" @onclick="Logout">
+                    Logout (@AuthService.CurrentUser)
+                </a>
+            </div>
+        }
+        else
+        {
+
+            <!-- Only when logged out -->
+            <div class="nav-item px-3">
+                <NavLink class="navbar-brand" href="/login">
+                    Login
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="navbar-brand" href="/register">
+                    Register
+                </NavLink>
+            </div>
+        }
+</div>
+
+
+@code {
+   // private bool collapseNavMenu = true;
+
+   // private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+   // private void ToggleNavMenu()
+   // {
+   //     collapseNavMenu = !collapseNavMenu;
+   // }
+
+    void Logout()
+    {
+        AuthService.Logout();
+        Nav.NavigateTo("/");
+    }
+    protected override void OnInitialized()
+    {
+        AuthService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnChange -= StateHasChanged;
+    }
+
+}
+
+

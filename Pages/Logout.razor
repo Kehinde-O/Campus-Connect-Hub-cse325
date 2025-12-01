@@ -1,0 +1,19 @@
+@page "/logout"
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthProvider
+
+<h3>Logging out...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Call the custom logout method in your AuthProvider
+        if (AuthProvider is CustomAuthStateProvider custom)
+        {
+            await custom.LogoutUser();
+        }
+
+        // Redirect to login page
+        Navigation.NavigateTo("/login", true);
+    }
+}
