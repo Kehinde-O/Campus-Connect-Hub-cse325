@@ -52,17 +52,48 @@ public class AuthService
 
     public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
-        
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
-            if (authResponse != null)
+            var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
+            
+            if (response.IsSuccessStatusCode)
             {
-                await _localStorage.SetItemAsync("authToken", authResponse.Token);
-                await _localStorage.SetItemAsync("user", authResponse.User);
-                return authResponse;
+                var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
+                if (authResponse != null)
+                {
+                    await _localStorage.SetItemAsync("authToken", authResponse.Token);
+                    await _localStorage.SetItemAsync("user", authResponse.User);
+                    return authResponse;
+                }
             }
+            else
+            {
+                // Try to read error message from response
+                var errorContent = await response.Content.ReadAsStringAsync();
+                var statusCode = (int)response.StatusCode;
+                
+                if (statusCode == 400)
+                {
+                    throw new HttpRequestException($"Registration failed: Email already registered");
+                }
+                else if (statusCode == 401)
+                {
+                    throw new HttpRequestException($"Registration failed: Unauthorized");
+                }
+                else
+                {
+                    throw new HttpRequestException($"Registration failed: {response.StatusCode}");
+                }
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            // Re-throw to be caught by the UI
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while connecting to the server. Please check your connection and try again.", ex);
         }
         
         return null;

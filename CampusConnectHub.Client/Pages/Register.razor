@@ -98,12 +98,31 @@
             }
             else
             {
-                errorMessage = "Registration failed. Email may already be registered.";
+                errorMessage = "Registration failed. Please try again.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.Message.Contains("Email already registered"))
+            {
+                errorMessage = "This email is already registered. Please use a different email or try logging in.";
+            }
+            else if (ex.Message.Contains("400") || ex.Message.Contains("BadRequest"))
+            {
+                errorMessage = "Invalid registration information. Please check your details and try again.";
+            }
+            else if (ex.Message.Contains("Failed to fetch") || ex.Message.Contains("NetworkError"))
+            {
+                errorMessage = "Unable to connect to the server. Please check your connection and ensure the API is running.";
+            }
+            else
+            {
+                errorMessage = ex.Message.Replace("Registration failed: ", "");
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "An error occurred. Please try again.";
+            errorMessage = $"An error occurred: {ex.Message}";
         }
         finally
         {
