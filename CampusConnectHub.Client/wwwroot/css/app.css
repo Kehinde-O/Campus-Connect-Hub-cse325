@@ -12,8 +12,9 @@
     
     /* Neutral Colors */
     --text-primary: #2c3e50;
-    --text-secondary: #7f8c8d;
-    --text-light: #95a5a6;
+    --text-secondary: #5a6c7d;
+    --text-secondary-dark: #4a5568;
+    --text-light: #718096;
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
     --bg-glass: rgba(255, 255, 255, 0.95);
@@ -122,6 +123,8 @@ a:hover, .btn-link:hover {
     font-size: var(--font-size-base);
     font-weight: 600;
     padding: 0.75rem 1.5rem;
+    min-height: 44px;
+    min-width: 44px;
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
@@ -131,6 +134,7 @@ a:hover, .btn-link:hover {
     justify-content: center;
     gap: var(--spacing-sm);
     text-decoration: none;
+    position: relative;
 }
 
 .btn-primary {
@@ -173,6 +177,7 @@ a:hover, .btn-link:hover {
 .form-control, input[type="text"], input[type="email"], input[type="password"], textarea, select {
     width: 100%;
     padding: 0.75rem 1rem;
+    min-height: 44px;
     font-size: var(--font-size-base);
     font-family: var(--font-family-base);
     color: var(--text-primary);
@@ -180,7 +185,6 @@ a:hover, .btn-link:hover {
     border: 2px solid #e0e0e0;
     border-radius: var(--radius-md);
     transition: all var(--transition-base);
-    outline: none;
 }
 
 .form-control:focus, input:focus, textarea:focus, select:focus {
@@ -210,9 +214,61 @@ a:hover, .btn-link:hover {
     display: block;
 }
 
-/* Focus Styles */
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+/* Focus Styles - WCAG 2.1 AA Compliant */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus, 
+button:focus, a:focus, input:focus, textarea:focus, select:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(102, 126, 234, 0.5);
+}
+
+/* Remove outline only when using mouse, keep for keyboard */
+.btn:focus:not(:focus-visible), 
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Ensure focus-visible is always shown */
+.btn:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Skip to main content link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 10000;
+    border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 /* Content Area */
@@ -275,6 +331,74 @@ a:hover, .btn-link:hover {
 /* Smooth Scrolling */
 html {
     scroll-behavior: smooth;
+}
+
+/* Enhanced Button Styles for Sleekness */
+.btn, button {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before, button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before, button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary, .btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    position: relative;
+    z-index: 1;
+}
+
+/* Enhanced Card Hover Effects */
+.stat-card, .news-card, .event-card, .resource-card, .management-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover, .news-card:hover, .event-card:hover, .resource-card:hover, .management-card:hover {
+    transform: translateY(-8px) scale(1.02);
+}
+
+/* Glassmorphism Enhancement */
+.glass, .stat-card, .news-card, .event-card, .resource-card, .management-card, .admin-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Consistent Branding - Gradient Text */
+.brand-gradient {
+    background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Enhanced Loading States */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 #blazor-error-ui {

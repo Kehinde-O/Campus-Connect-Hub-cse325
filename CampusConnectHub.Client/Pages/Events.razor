@@ -61,14 +61,17 @@
                             {
                                 @if (eventItem.IsUserRSVPed)
                                 {
-                                    <button class="btn-rsvp btn-rsvp-cancelled" @onclick="() => CancelRSVP(eventItem.Id)">
+                                    <button class="btn-rsvp btn-rsvp-cancelled" @onclick="() => CancelRSVP(eventItem.Id)" 
+                                            aria-label="Cancel RSVP for @eventItem.Title" type="button">
                                         <span>Cancel RSVP</span>
                                     </button>
                                 }
                                 else
                                 {
                                     <button class="btn-rsvp" @onclick="() => RSVPToEvent(eventItem.Id)" 
-                                            disabled="@(eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value)">
+                                            disabled="@(eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value)"
+                                            aria-label="@(eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value ? "Event is full" : $"RSVP to {eventItem.Title}")" 
+                                            type="button">
                                         @if (eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value)
                                         {
                                             <span>Full</span>
@@ -312,8 +315,9 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
-        color: var(--text-secondary);
-        font-size: var(--font-size-sm);
+        color: var(--text-secondary-dark);
+        font-size: var(--font-size-base);
+        font-weight: 500;
     }
 
     .meta-icon {
@@ -341,8 +345,9 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
-        color: var(--text-secondary);
-        font-size: var(--font-size-sm);
+        color: var(--text-secondary-dark);
+        font-size: var(--font-size-base);
+        font-weight: 500;
     }
 
     .attendees-icon {
@@ -355,7 +360,7 @@
     }
 
     .attendees-label {
-        color: var(--text-light);
+        color: var(--text-secondary);
     }
 
     .btn-rsvp {

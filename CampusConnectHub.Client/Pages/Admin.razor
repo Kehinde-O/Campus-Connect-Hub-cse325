@@ -26,42 +26,54 @@ else
         {
             <div class="dashboard-stats">
                 <div class="stat-card stat-card-primary">
-                    <div class="stat-icon">News</div>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon"></div>
+                    </div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalNewsPosts</div>
                         <div class="stat-label">Total News Posts</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-success">
-                    <div class="stat-icon">Published</div>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon"></div>
+                    </div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.PublishedNewsPosts</div>
                         <div class="stat-label">Published Posts</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-info">
-                    <div class="stat-icon">Events</div>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon"></div>
+                    </div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalEvents</div>
                         <div class="stat-label">Total Events</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-warning">
-                    <div class="stat-icon">Upcoming</div>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon"></div>
+                    </div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.UpcomingEvents</div>
                         <div class="stat-label">Upcoming Events</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-secondary">
-                    <div class="stat-icon">RSVPs</div>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon"></div>
+                    </div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalRSVPs</div>
                         <div class="stat-label">Total RSVPs</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-accent">
-                    <div class="stat-icon">Users</div>
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon"></div>
+                    </div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalUsers</div>
                         <div class="stat-label">Total Users</div>
@@ -76,7 +88,8 @@ else
                             <span class="section-icon">News</span>
                             News Management
                         </h2>
-                        <button class="btn-primary" @onclick="newsManagementRef?.OpenCreateModal">
+                        <button class="btn-primary" @onclick="() => newsManagementRef?.OpenCreateModal()" 
+                                aria-label="Create new news post" type="button">
                             <span>+</span> Create News Post
                         </button>
                     </div>
@@ -89,7 +102,8 @@ else
                             <span class="section-icon">Events</span>
                             Event Management
                         </h2>
-                        <button class="btn-primary" @onclick="eventManagementRef?.OpenCreateModal">
+                        <button class="btn-primary" @onclick="() => eventManagementRef?.OpenCreateModal()" 
+                                aria-label="Create new event" type="button">
                             <span>+</span> Create Event
                         </button>
                     </div>
@@ -102,7 +116,8 @@ else
                             <span class="section-icon">Resources</span>
                             Resource Management
                         </h2>
-                        <button class="btn-primary" @onclick="resourceManagementRef?.OpenCreateModal">
+                        <button class="btn-primary" @onclick="() => resourceManagementRef?.OpenCreateModal()" 
+                                aria-label="Create new resource" type="button">
                             <span>+</span> Create Resource
                         </button>
                     </div>
@@ -211,12 +226,13 @@ else
         padding: var(--spacing-xl);
         box-shadow: var(--shadow-md);
         display: flex;
-        align-items: center;
-        gap: var(--spacing-md);
+        align-items: flex-start;
+        gap: var(--spacing-lg);
         transition: all var(--transition-base);
         border: 1px solid rgba(255, 255, 255, 0.2);
         position: relative;
-        overflow: hidden;
+        overflow: visible;
+        min-height: 120px;
     }
 
     .stat-card::before {
@@ -263,40 +279,76 @@ else
         transform: scaleX(1);
     }
 
-    .stat-icon {
-        font-size: 2.5rem;
-        width: 70px;
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: var(--radius-lg);
-        background: rgba(102, 126, 234, 0.1);
+    .stat-icon-wrapper {
         flex-shrink: 0;
     }
 
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-lg);
+        background: rgba(102, 126, 234, 0.15);
+        position: relative;
+    }
+
+    .stat-icon::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.3);
+    }
+
     .stat-card-success .stat-icon {
-        background: rgba(39, 174, 96, 0.1);
+        background: rgba(39, 174, 96, 0.15);
+    }
+
+    .stat-card-success .stat-icon::after {
+        background: rgba(39, 174, 96, 0.3);
     }
 
     .stat-card-info .stat-icon {
-        background: rgba(52, 152, 219, 0.1);
+        background: rgba(52, 152, 219, 0.15);
+    }
+
+    .stat-card-info .stat-icon::after {
+        background: rgba(52, 152, 219, 0.3);
     }
 
     .stat-card-warning .stat-icon {
-        background: rgba(243, 156, 18, 0.1);
+        background: rgba(243, 156, 18, 0.15);
+    }
+
+    .stat-card-warning .stat-icon::after {
+        background: rgba(243, 156, 18, 0.3);
     }
 
     .stat-card-secondary .stat-icon {
-        background: rgba(240, 147, 251, 0.1);
+        background: rgba(240, 147, 251, 0.15);
+    }
+
+    .stat-card-secondary .stat-icon::after {
+        background: rgba(240, 147, 251, 0.3);
     }
 
     .stat-card-accent .stat-icon {
-        background: rgba(79, 172, 254, 0.1);
+        background: rgba(79, 172, 254, 0.15);
+    }
+
+    .stat-card-accent .stat-icon::after {
+        background: rgba(79, 172, 254, 0.3);
     }
 
     .stat-content {
         flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
     }
 
     .stat-value {
@@ -306,16 +358,20 @@ else
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        line-height: 1;
-        margin-bottom: var(--spacing-xs);
+        line-height: 1.1;
+        margin: 0;
+        word-break: break-word;
     }
 
     .stat-label {
-        color: var(--text-secondary);
-        font-size: var(--font-size-sm);
+        color: #4a5568;
+        font-size: var(--font-size-base);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        line-height: 1.4;
+        margin: 0;
+        word-break: break-word;
     }
 
     .admin-sections {
@@ -399,6 +455,21 @@ else
 
         .dashboard-stats {
             grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .stat-card {
+            min-height: auto;
+            padding: var(--spacing-lg);
+        }
+
+        .stat-label {
+            font-size: var(--font-size-sm);
+            word-break: break-word;
+        }
+
+        .stat-value {
+            font-size: var(--font-size-2xl);
         }
 
         .section-header {
@@ -409,6 +480,10 @@ else
         .btn-primary {
             width: 100%;
             justify-content: center;
+        }
+
+        .admin-section h2 {
+            font-size: var(--font-size-xl);
         }
     }
 </style>

@@ -296,8 +296,9 @@
     }
 
     .meta-item {
-        color: var(--text-secondary);
-        font-size: var(--font-size-sm);
+        color: var(--text-secondary-dark);
+        font-size: var(--font-size-base);
+        font-weight: 500;
     }
 
     .card-content {
@@ -306,8 +307,8 @@
 
     .card-content p {
         color: var(--text-primary);
-        font-size: var(--font-size-sm);
-        line-height: 1.6;
+        font-size: var(--font-size-base);
+        line-height: 1.7;
         margin: 0 0 var(--spacing-sm) 0;
     }
 
@@ -416,10 +417,13 @@
     }
 
     .form-control:focus {
-        outline: none;
         border-color: var(--primary-color);
         background: rgba(255, 255, 255, 0.15);
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control:focus:not(:focus-visible) {
+        outline: none;
     }
 
     .form-hint {

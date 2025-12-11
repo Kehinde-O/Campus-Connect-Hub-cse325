@@ -1,19 +1,20 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @using CampusConnectHub.Client.Services
 @inject AuthService AuthService
 
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
-    <main>
+    <main id="main-content">
         <div class="top-row px-4">
             @if (isAuthenticated)
             {
                 <span class="user-greeting">Welcome, @userName!</span>
             }
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank" aria-label="Learn about ASP.NET Core (opens in new tab)">About</a>
         </div>
 
         <article class="content px-4">

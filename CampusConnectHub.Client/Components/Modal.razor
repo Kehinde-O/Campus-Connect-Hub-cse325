@@ -1,11 +1,11 @@
 @if (IsVisible)
 {
-    <div class="modal-backdrop" @onclick="HandleBackdropClick" @onkeydown="@((KeyboardEventArgs e) => HandleKeyDown(e))">
-        <div class="modal-container" @onclick:stopPropagation="true">
+    <div class="modal-backdrop" @onclick="HandleBackdropClick" @onkeydown="@((KeyboardEventArgs e) => HandleKeyDown(e))" role="presentation">
+        <div class="modal-container" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="modal-title-@GetHashCode()" tabindex="-1">
             <div class="modal-header">
-                <h3>@Title</h3>
-                <button class="modal-close" @onclick="Close" aria-label="Close modal">
-                    <span>&times;</span>
+                <h3 id="modal-title-@GetHashCode()">@Title</h3>
+                <button class="modal-close" @onclick="Close" aria-label="Close modal" type="button">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
@@ -121,12 +121,14 @@
 
     .modal-close {
         background: transparent;
-        border: none;
+        border: 2px solid transparent;
         color: var(--text-secondary);
         font-size: var(--font-size-3xl);
         cursor: pointer;
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -139,6 +141,12 @@
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
         transform: rotate(90deg);
+    }
+
+    .modal-close:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .modal-body {

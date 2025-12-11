@@ -114,10 +114,13 @@
     }
 
     .search-input:focus {
-        outline: none;
         border-color: var(--primary-color);
         background: rgba(255, 255, 255, 0.15);
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-input:focus:not(:focus-visible) {
+        outline: none;
     }
 
     .clear-button {
@@ -160,9 +163,12 @@
     }
 
     .filter-input:focus {
-        outline: none;
         border-color: var(--primary-color);
         background: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-input:focus:not(:focus-visible) {
+        outline: none;
     }
 
     .search-button {
