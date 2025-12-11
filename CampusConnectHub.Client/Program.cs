@@ -13,9 +13,15 @@ var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
     ? "https://localhost:7126"  // Development: API on different port
     : builder.HostEnvironment.BaseAddress; // Production: Same domain as frontend
 
+// Ensure BaseAddress ends with / for proper URL resolution
+if (!apiBaseUrl.EndsWith("/"))
+{
+    apiBaseUrl += "/";
+}
+
 builder.Services.AddScoped(sp => new HttpClient 
 { 
-    BaseAddress = new Uri(apiBaseUrl) 
+    BaseAddress = new Uri(apiBaseUrl)
 });
 
 // Register services

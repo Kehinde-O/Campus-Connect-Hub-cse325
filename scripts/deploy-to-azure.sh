@@ -96,6 +96,14 @@ echo -e "${GREEN}✅ App Service created${NC}"
 
 # Step 4: Build and publish
 echo -e "\n${YELLOW}Step 4: Building and publishing application...${NC}"
+# First, publish the Client project (Blazor WebAssembly)
+echo -e "${YELLOW}Publishing Blazor Client...${NC}"
+cd CampusConnectHub.Client
+dotnet publish -c Release -o ./bin/Release/net8.0/publish
+cd ..
+
+# Then publish the Server project (which will copy Client assets)
+echo -e "${YELLOW}Publishing Server...${NC}"
 cd CampusConnectHub.Server
 dotnet publish -c Release -o ./publish
 

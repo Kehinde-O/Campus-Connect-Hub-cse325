@@ -96,6 +96,22 @@ if (app.Environment.IsDevelopment())
 // This ensures preflight OPTIONS requests are handled correctly
 app.UseCors();
 
+// Explicitly handle OPTIONS requests for CORS preflight
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+        context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With";
+        context.Response.Headers["Access-Control-Max-Age"] = "3600";
+        context.Response.StatusCode = 200;
+        await context.Response.WriteAsync(string.Empty);
+        return;
+    }
+    await next();
+});
+
 app.UseHttpsRedirection();
 
 // Serve static files from wwwroot (for Blazor WebAssembly frontend)
@@ -107,7 +123,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map API controllers - these take precedence over static files for /api/* routes
-app.MapControllers();
+app.MapControllers().RequireCors(); // Explicitly require CORS for all API endpoints
 
 // Fallback to index.html for client-side routing (SPA)
 // This must be last to catch all non-API routes and serve the Blazor app
