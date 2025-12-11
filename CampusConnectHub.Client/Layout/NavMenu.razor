@@ -3,88 +3,76 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/" aria-label="Campus Connect Hub - Home">
-            <span class="brand-gradient" style="font-size: 1.5rem; font-weight: bold;">C</span>ampus Connect Hub
-        </a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu" aria-label="Toggle navigation menu" aria-expanded="@(!collapseNavMenu)" type="button">
-            <span class="navbar-toggler-icon" aria-hidden="true"></span>
-        </button>
-    </div>
-</div>
+<div class="nav-menu">
+    <a class="brand-link" href="/">
+        <span class="brand-icon">C</span>
+        <span class="brand-text">Campus Connect</span>
+    </a>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    @if (isAuthenticated && user != null)
-    {
-        <div class="user-profile-section">
-            <div class="user-profile-card">
-                <div class="user-avatar">
-                    @(user.FirstName?.Substring(0, 1).ToUpper() ?? "U")
-                </div>
-                <div class="user-name">@user.FirstName @user.LastName</div>
-                <div class="user-role">@user.Role</div>
-            </div>
-        </div>
-    }
-    
-    <nav class="flex-column" aria-label="Main navigation">
-        <div class="nav-item">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All" aria-label="Go to news feed">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> News Feed
+    <nav class="nav-schema" aria-label="Main navigation">
+        <div class="nav-section">
+            <span class="nav-section-label">Main</span>
+            <NavLink class="nav-item" href="" Match="NavLinkMatch.All" aria-label="Go to news feed">
+                <i class="bi bi-house-door-fill"></i>
+                <span>News Feed</span>
+            </NavLink>
+            <NavLink class="nav-item" href="events" aria-label="Go to events">
+                <i class="bi bi-calendar-event"></i>
+                <span>Events</span>
+            </NavLink>
+            <NavLink class="nav-item" href="resources" aria-label="Go to resources">
+                <i class="bi bi-collection"></i>
+                <span>Resources</span>
             </NavLink>
         </div>
-        <div class="nav-item">
-            <NavLink class="nav-link" href="events" aria-label="Go to events">
-                <span class="bi bi-calendar-event" aria-hidden="true"></span> Events
-            </NavLink>
-        </div>
-        <div class="nav-item">
-            <NavLink class="nav-link" href="resources" aria-label="Go to resources">
-                <span class="bi bi-link-45deg" aria-hidden="true"></span> Resources
-            </NavLink>
-        </div>
+
         @if (isAuthenticated)
         {
-            <div class="nav-item">
-                <NavLink class="nav-link" href="events/calendar" aria-label="Go to calendar">
-                    <span class="bi bi-calendar3" aria-hidden="true"></span> Calendar
-                </NavLink>
+            <div class="nav-section">
+                <span class="nav-section-label">Personal</span>
+            <NavLink class="nav-item" href="events/calendar" aria-label="Go to calendar">
+                <i class="bi bi-calendar3"></i>
+                <span>Calendar</span>
+            </NavLink>
+            <NavLink class="nav-item" href="my-rsvps" aria-label="Go to my RSVPs">
+                <i class="bi bi-calendar-check"></i>
+                <span>My RSVPs</span>
+            </NavLink>
+            <NavLink class="nav-item" href="profile" aria-label="Go to profile">
+                <i class="bi bi-person-circle"></i>
+                <span>Profile</span>
+            </NavLink>
             </div>
-            <div class="nav-item">
-                <NavLink class="nav-link" href="my-rsvps" aria-label="Go to my RSVPs">
-                    <span class="bi bi-calendar-check" aria-hidden="true"></span> My RSVPs
-                </NavLink>
-            </div>
-            <div class="nav-item">
-                <NavLink class="nav-link" href="profile" aria-label="Go to profile">
-                    <span class="bi bi-person-circle" aria-hidden="true"></span> Profile
-                </NavLink>
-            </div>
+
             @if (isAdmin)
             {
-                <div class="nav-item">
-                    <NavLink class="nav-link" href="admin" aria-label="Go to admin dashboard">
-                        <span class="bi bi-speedometer2" aria-hidden="true"></span> Admin
+                <div class="nav-section">
+                    <span class="nav-section-label">Management</span>
+                    <NavLink class="nav-item" href="admin" aria-label="Go to admin dashboard">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Admin Dashboard</span>
                     </NavLink>
                 </div>
             }
-            <div class="nav-item">
-                <button class="nav-link btn-link" @onclick="HandleLogout" aria-label="Logout" type="button">
-                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Logout
+
+            <div class="nav-footer">
+                <button class="nav-item logout-btn" @onclick="HandleLogout" aria-label="Logout" type="button">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
                 </button>
             </div>
         }
         else
         {
-            <div class="nav-item">
-                <NavLink class="nav-link" href="login" aria-label="Go to login">
-                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
+            <div class="nav-section">
+                <span class="nav-section-label">Access</span>
+                <NavLink class="nav-item" href="login" aria-label="Go to login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Login</span>
                 </NavLink>
-            </div>
-            <div class="nav-item">
-                <NavLink class="nav-link" href="register" aria-label="Go to registration">
-                    <span class="bi bi-person-plus" aria-hidden="true"></span> Register
+                <NavLink class="nav-item" href="register" aria-label="Go to registration">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Register</span>
                 </NavLink>
             </div>
         }
@@ -125,3 +113,102 @@
         Navigation.NavigateTo("/");
     }
 }
+
+<style>
+    .nav-menu {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: var(--spacing-md);
+    }
+
+    .brand-link {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md) var(--spacing-sm);
+        margin-bottom: var(--spacing-lg);
+        color: white;
+        text-decoration: none;
+    }
+
+    .brand-icon {
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.1);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--secondary-color);
+    }
+
+    .brand-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+    }
+
+    .nav-section {
+        margin-bottom: var(--spacing-lg);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .nav-section-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.4);
+        padding: 0 var(--spacing-sm);
+        margin-bottom: var(--spacing-xs);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        padding: 0.625rem 0.75rem;
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        border-radius: var(--radius-md);
+        transition: all var(--transition-base);
+        border: none;
+        background: none;
+        width: 100%;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .nav-item:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+
+    .nav-item.active {
+        background-color: var(--secondary-color);
+        color: white;
+    }
+
+    .nav-item i {
+        font-size: 1.1rem;
+        opacity: 0.8;
+    }
+
+    .logout-btn {
+        margin-top: auto;
+        color: rgba(255,100,100,0.9);
+    }
+
+    .logout-btn:hover {
+        background-color: rgba(255,50,50,0.1);
+        color: #ff8888;
+    }
+
+    .nav-footer {
+        margin-top: auto;
+    }
+</style>

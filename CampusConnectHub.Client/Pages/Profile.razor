@@ -9,121 +9,150 @@
 
 <PageTitle>Profile - Campus Connect Hub</PageTitle>
 
-@if (!isAuthenticated)
-{
-    <div class="unauthorized-container">
-        <div class="unauthorized-message">
-            <h2>Please log in</h2>
-            <p>You need to be logged in to view your profile.</p>
-            <a href="/login" class="btn-primary">Go to Login</a>
-        </div>
-    </div>
-}
-else if (isLoading)
-{
-    <div class="loading-container">
-        <div class="loading-spinner-large"></div>
-        <p class="loading-text">Loading profile...</p>
-    </div>
-}
-else
-{
-    <div class="profile-container">
-        <div class="header-section">
-            <h1>My Profile</h1>
-            <p class="subtitle">Manage your account information</p>
-        </div>
+<div class="content-header text-center mb-4">
+    <h1 class="display-4 fw-bold text-primary">My Profile</h1>
+    <p class="lead text-secondary">Manage your account information</p>
+</div>
 
-        <div class="profile-content">
-            <div class="profile-section">
-                <h2>Profile Information</h2>
-                <EditForm Model="profileData" OnValidSubmit="UpdateProfile">
-                    <DataAnnotationsValidator />
-                    <div class="form-group">
-                        <label for="firstName">First Name *</label>
-                        <InputText id="firstName" @bind-Value="profileData.FirstName" class="form-control" />
-                        <ValidationMessage For="@(() => profileData.FirstName)" />
+<div class="container pb-5">
+    @if (!isAuthenticated)
+    {
+        <div class="card shadow-sm text-center py-5">
+            <div class="card-body">
+                <i class="bi bi-lock-fill display-4 text-tertiary mb-3"></i>
+                <h2 class="h4 text-primary mb-3">Please log in</h2>
+                <p class="text-secondary mb-4">You need to be logged in to view your profile.</p>
+                <a href="/login" class="btn btn-primary">Go to Login</a>
+            </div>
+        </div>
+    }
+    else if (isLoading)
+    {
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-secondary">Loading profile...</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Account Stats -->
+            <div class="col-12 mb-2">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm h-100 border-0 bg-primary bg-opacity-10">
+                            <div class="card-body text-center py-4">
+                                <h3 class="display-4 fw-bold text-primary mb-0">@userStats.TotalRSVPs</h3>
+                                <p class="text-uppercase small fw-bold text-secondary mb-0">Total RSVPs</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name *</label>
-                        <InputText id="lastName" @bind-Value="profileData.LastName" class="form-control" />
-                        <ValidationMessage For="@(() => profileData.LastName)" />
+                    <div class="col-md-4">
+                        <div class="card shadow-sm h-100 border-0 bg-info bg-opacity-10">
+                            <div class="card-body text-center py-4">
+                                <h3 class="display-4 fw-bold text-info mb-0">@userStats.UpcomingRSVPs</h3>
+                                <p class="text-uppercase small fw-bold text-secondary mb-0">Upcoming Events</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <InputText id="email" @bind-Value="profileData.Email" type="email" class="form-control" />
-                        <ValidationMessage For="@(() => profileData.Email)" />
+                    <div class="col-md-4">
+                        <div class="card shadow-sm h-100 border-0 bg-secondary bg-opacity-10">
+                            <div class="card-body text-center py-4">
+                                <h3 class="display-4 fw-bold text-secondary mb-0">@userStats.PastRSVPs</h3>
+                                <p class="text-uppercase small fw-bold text-secondary mb-0">Past Events</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" disabled="@isSaving">
-                            @if (isSaving)
-                            {
-                                <span>Saving...</span>
-                            }
-                            else
-                            {
-                                <span>Save Changes</span>
-                            }
-                        </button>
-                    </div>
-                </EditForm>
+                </div>
             </div>
 
-            <div class="profile-section">
-                <h2>Change Password</h2>
-                <EditForm Model="passwordData" OnValidSubmit="ChangePassword">
-                    <DataAnnotationsValidator />
-                    <div class="form-group">
-                        <label for="currentPassword">Current Password *</label>
-                        <InputText id="currentPassword" @bind-Value="passwordData.CurrentPassword" type="password" class="form-control" />
-                        <ValidationMessage For="@(() => passwordData.CurrentPassword)" />
+            <!-- Profile Form -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="h5 text-primary mb-0"><i class="bi bi-person-fill me-2"></i>Profile Information</h2>
                     </div>
-                    <div class="form-group">
-                        <label for="newPassword">New Password *</label>
-                        <InputText id="newPassword" @bind-Value="passwordData.NewPassword" type="password" class="form-control" />
-                        <ValidationMessage For="@(() => passwordData.NewPassword)" />
-                        <small class="form-hint">Must be at least 6 characters</small>
+                    <div class="card-body p-4">
+                        <EditForm Model="profileData" OnValidSubmit="UpdateProfile">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label fw-bold small text-uppercase text-secondary">First Name *</label>
+                                <InputText id="firstName" @bind-Value="profileData.FirstName" class="form-control" />
+                                <ValidationMessage For="@(() => profileData.FirstName)" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label fw-bold small text-uppercase text-secondary">Last Name *</label>
+                                <InputText id="lastName" @bind-Value="profileData.LastName" class="form-control" />
+                                <ValidationMessage For="@(() => profileData.LastName)" />
+                            </div>
+                            <div class="mb-4">
+                                <label for="email" class="form-label fw-bold small text-uppercase text-secondary">Email *</label>
+                                <InputText id="email" @bind-Value="profileData.Email" type="email" class="form-control" />
+                                <ValidationMessage For="@(() => profileData.Email)" />
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        <span>Saving...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Save Changes</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
                     </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm New Password *</label>
-                        <InputText id="confirmPassword" @bind-Value="passwordData.ConfirmPassword" type="password" class="form-control" />
-                        <ValidationMessage For="@(() => passwordData.ConfirmPassword)" />
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" disabled="@isChangingPassword">
-                            @if (isChangingPassword)
-                            {
-                                <span>Changing...</span>
-                            }
-                            else
-                            {
-                                <span>Change Password</span>
-                            }
-                        </button>
-                    </div>
-                </EditForm>
+                </div>
             </div>
 
-            <div class="profile-section">
-                <h2>Account Statistics</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">@userStats.TotalRSVPs</div>
-                        <div class="stat-label">Total RSVPs</div>
+            <!-- Change Password Form -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="h5 text-primary mb-0"><i class="bi bi-shield-lock-fill me-2"></i>Change Password</h2>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value">@userStats.UpcomingRSVPs</div>
-                        <div class="stat-label">Upcoming Events</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">@userStats.PastRSVPs</div>
-                        <div class="stat-label">Past Events</div>
+                    <div class="card-body p-4">
+                        <EditForm Model="passwordData" OnValidSubmit="ChangePassword">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label for="currentPassword" class="form-label fw-bold small text-uppercase text-secondary">Current Password *</label>
+                                <InputText id="currentPassword" @bind-Value="passwordData.CurrentPassword" type="password" class="form-control" />
+                                <ValidationMessage For="@(() => passwordData.CurrentPassword)" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label fw-bold small text-uppercase text-secondary">New Password *</label>
+                                <InputText id="newPassword" @bind-Value="passwordData.NewPassword" type="password" class="form-control" />
+                                <ValidationMessage For="@(() => passwordData.NewPassword)" />
+                                <small class="text-muted">Must be at least 6 characters</small>
+                            </div>
+                            <div class="mb-4">
+                                <label for="confirmPassword" class="form-label fw-bold small text-uppercase text-secondary">Confirm New Password *</label>
+                                <InputText id="confirmPassword" @bind-Value="passwordData.ConfirmPassword" type="password" class="form-control" />
+                                <ValidationMessage For="@(() => passwordData.ConfirmPassword)" />
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" disabled="@isChangingPassword">
+                                    @if (isChangingPassword)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        <span>Changing...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Change Password</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 @code {
     private UserResponse? currentUser;
@@ -213,212 +242,9 @@ else
 }
 
 <style>
-    .profile-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: var(--spacing-xl);
-    }
-
-    .header-section {
-        margin-bottom: var(--spacing-2xl);
-        text-align: center;
-    }
-
-    .header-section h1 {
-        font-size: var(--font-size-4xl);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: var(--spacing-sm);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-    }
-
-    .subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: var(--font-size-lg);
-        font-weight: 400;
-    }
-
-    .profile-content {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xl);
-    }
-
-    .profile-section {
-        background: var(--bg-glass);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: var(--radius-xl);
-        padding: var(--spacing-xl);
-        box-shadow: var(--shadow-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .profile-section h2 {
-        margin: 0 0 var(--spacing-lg) 0;
-        color: var(--text-primary);
-        font-size: var(--font-size-2xl);
-        font-weight: 700;
-    }
-
-    .form-group {
-        margin-bottom: var(--spacing-lg);
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: var(--spacing-sm);
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: var(--font-size-sm);
-    }
-
-    .form-control {
-        width: 100%;
-        padding: var(--spacing-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: var(--radius-md);
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-primary);
-        font-size: var(--font-size-base);
-        font-family: inherit;
-        transition: all var(--transition-base);
-    }
-
-    .form-control:focus {
-        border-color: var(--primary-color);
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .form-control:focus:not(:focus-visible) {
-        outline: none;
-    }
-
-    .form-hint {
-        display: block;
-        margin-top: var(--spacing-xs);
-        color: var(--text-secondary);
-        font-size: var(--font-size-xs);
-    }
-
-    .form-actions {
-        margin-top: var(--spacing-lg);
-    }
-
-    .btn-primary {
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        color: white;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 700;
-        transition: all var(--transition-base);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .btn-primary:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: var(--spacing-lg);
-    }
-
-    .stat-card {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-lg);
-        text-align: center;
-    }
-
-    .stat-value {
-        font-size: var(--font-size-3xl);
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: var(--spacing-xs);
-    }
-
-    .stat-label {
-        color: var(--text-secondary-dark);
-        font-size: var(--font-size-base);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .unauthorized-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 60vh;
-    }
-
-    .unauthorized-message {
-        text-align: center;
-        background: var(--bg-glass);
-        backdrop-filter: blur(20px);
-        border-radius: var(--radius-xl);
-        padding: var(--spacing-2xl);
-        box-shadow: var(--shadow-md);
-    }
-
-    .unauthorized-message h2 {
-        color: var(--text-primary);
-        margin-bottom: var(--spacing-md);
-    }
-
-    .unauthorized-message p {
-        color: var(--text-secondary);
-        margin-bottom: var(--spacing-lg);
-    }
-
-    .loading-container {
-        text-align: center;
-        padding: var(--spacing-2xl);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: var(--spacing-md);
-    }
-
-    .loading-spinner-large {
-        width: 60px;
-        height: 60px;
-        border: 4px solid rgba(255, 255, 255, 0.2);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    .loading-text {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: var(--font-size-lg);
-        font-weight: 500;
-    }
-
-    @@media (max-width: 768px) {
-        .profile-container {
-            padding: var(--spacing-md);
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
+    .text-tertiary {
+        color: var(--text-tertiary);
     }
 </style>
+
 

@@ -6,79 +6,85 @@
 
 <PageTitle>Events - Campus Connect Hub</PageTitle>
 
-<div class="events-container">
-    <div class="header-section">
-        <h1>Upcoming Events</h1>
-        <p class="subtitle">Discover and RSVP to campus events</p>
-    </div>
+<div class="content-header text-center mb-4">
+    <h1 class="display-4 fw-bold text-primary">Upcoming Events</h1>
+    <p class="lead text-secondary">Discover and RSVP to campus events</p>
+</div>
 
-    <SearchBar Placeholder="Search events..." 
-               ShowFilters="true" 
-               FilterType="events"
-               OnFilter="HandleFilter" 
-               OnClear="HandleClearFilter" />
+<div class="container-fluid events-container">
+    <div class="search-section mb-4">
+        <SearchBar Placeholder="Search events..." 
+                   ShowFilters="true" 
+                   FilterType="events"
+                   OnFilter="HandleFilter" 
+                   OnClear="HandleClearFilter" />
+    </div>
 
     @if (isLoading)
     {
-        <div class="loading-container">
-            <div class="loading-spinner-large"></div>
-            <p class="loading-text">Loading events...</p>
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-secondary">Loading events...</p>
         </div>
     }
     else if (events.Any())
     {
-        <div class="events-grid">
+        <div class="dashboard-grid">
             @foreach (var eventItem in events)
             {
-                <div class="event-card">
-                    <div class="event-date-badge">
-                        <div class="event-month">@eventItem.EventDate.ToString("MMM")</div>
-                        <div class="event-day">@eventItem.EventDate.Day</div>
-                        <div class="event-year">@eventItem.EventDate.Year</div>
-                    </div>
-                    <div class="event-content">
-                        <h3>@eventItem.Title</h3>
-                        <div class="event-meta">
-                            <div class="meta-item">
-                                <span class="meta-icon">Location:</span>
-                                <span>@eventItem.Location</span>
+                <div class="card event-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="date-badge">
+                                <span class="month">@eventItem.EventDate.ToString("MMM")</span>
+                                <span class="day">@eventItem.EventDate.Day</span>
                             </div>
-                            <div class="meta-item">
-                                <span class="meta-icon">Time:</span>
-                                <span>@eventItem.EventDate.ToString("h:mm tt")</span>
+                            <div class="flex-grow-1">
+                                <h3 class="card-title h5 text-primary mb-1">@eventItem.Title</h3>
+                                <div class="text-secondary small">
+                                    <i class="bi bi-geo-alt-fill me-1 text-tertiary"></i> @eventItem.Location
+                                </div>
                             </div>
                         </div>
-                        <p class="event-description">@eventItem.Description</p>
-                        <div class="event-footer">
-                            <div class="event-attendees">
-                                <span class="attendees-icon">Attendees:</span>
-                                <span class="attendees-count">
-                                    @eventItem.CurrentAttendees@(eventItem.MaxAttendees.HasValue ? $"/{eventItem.MaxAttendees}" : "")
-                                </span>
-                                <span class="attendees-label">attending</span>
+
+                        <div class="event-details mb-3">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-secondary small">
+                                <i class="bi bi-clock text-tertiary"></i>
+                                <span>@eventItem.EventDate.ToString("h:mm tt")</span>
                             </div>
+                            <p class="card-text text-secondary mb-0 line-clamp-3">@eventItem.Description</p>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                            <div class="attendees-info small">
+                                <i class="bi bi-people-fill text-tertiary me-1"></i>
+                                <span class="fw-bold text-primary">@eventItem.CurrentAttendees</span>
+                                @if (eventItem.MaxAttendees.HasValue)
+                                {
+                                    <span class="text-muted">/@eventItem.MaxAttendees</span>
+                                }
+                                <span class="text-muted ms-1">attending</span>
+                            </div>
+
                             @if (isAuthenticated)
                             {
                                 @if (eventItem.IsUserRSVPed)
                                 {
-                                    <button class="btn-rsvp btn-rsvp-cancelled" @onclick="() => CancelRSVP(eventItem.Id)" 
-                                            aria-label="Cancel RSVP for @eventItem.Title" type="button">
-                                        <span>Cancel RSVP</span>
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => CancelRSVP(eventItem.Id)">
+                                        Cancel RSVP
                                     </button>
                                 }
                                 else
                                 {
-                                    <button class="btn-rsvp" @onclick="() => RSVPToEvent(eventItem.Id)" 
-                                            disabled="@(eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value)"
-                                            aria-label="@(eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value ? "Event is full" : $"RSVP to {eventItem.Title}")" 
-                                            type="button">
+                                    <button class="btn btn-primary btn-sm" @onclick="() => RSVPToEvent(eventItem.Id)" 
+                                            disabled="@(eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value)">
                                         @if (eventItem.MaxAttendees.HasValue && eventItem.CurrentAttendees >= eventItem.MaxAttendees.Value)
                                         {
                                             <span>Full</span>
                                         }
                                         else
                                         {
-                                            <span>+</span> <text>RSVP</text>
+                                            <span>RSVP Now</span>
                                         }
                                     </button>
                                 }
@@ -91,10 +97,12 @@
     }
     else
     {
-        <div class="empty-state">
-            <div class="empty-icon">Calendar</div>
-            <h3>No upcoming events</h3>
-            <p>Check back later for exciting campus events!</p>
+        <div class="empty-state text-center py-5">
+            <div class="empty-icon mb-3">
+                <i class="bi bi-calendar-x display-1 text-tertiary"></i>
+            </div>
+            <h3 class="text-primary mb-2">No upcoming events</h3>
+            <p class="text-secondary">Check back later for exciting campus events!</p>
         </div>
     }
 </div>
@@ -184,301 +192,58 @@
 
 <style>
     .events-container {
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
-        padding: var(--spacing-xl);
-    }
-
-    .header-section {
-        margin-bottom: var(--spacing-2xl);
-        text-align: center;
-    }
-
-    .header-section h1 {
-        font-size: var(--font-size-4xl);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: var(--spacing-sm);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-    }
-
-    .subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: var(--font-size-lg);
-        font-weight: 400;
-    }
-
-    .events-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-        gap: var(--spacing-xl);
     }
 
     .event-card {
-        background: var(--bg-glass);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: var(--radius-xl);
-        padding: var(--spacing-xl);
-        box-shadow: var(--shadow-md);
-        display: flex;
-        gap: var(--spacing-lg);
-        transition: all var(--transition-base);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .event-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        transform: scaleX(0);
-        transition: transform var(--transition-base);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
     .event-card:hover {
-        transform: translateY(-8px);
+        transform: translateY(-4px);
         box-shadow: var(--shadow-lg);
     }
 
-    .event-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .event-date-badge {
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        color: white;
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-md);
+    .date-badge {
         text-align: center;
-        min-width: 90px;
-        height: fit-content;
-        box-shadow: var(--shadow-md);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .event-month {
-        font-size: var(--font-size-xs);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        opacity: 0.95;
-        margin-bottom: var(--spacing-xs);
-    }
-
-    .event-day {
-        font-size: var(--font-size-3xl);
-        font-weight: 800;
-        line-height: 1;
-        margin-bottom: var(--spacing-xs);
-    }
-
-    .event-year {
-        font-size: var(--font-size-xs);
-        font-weight: 600;
-        opacity: 0.9;
-    }
-
-    .event-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .event-content h3 {
-        margin: 0 0 var(--spacing-md) 0;
-        color: var(--text-primary);
-        font-size: var(--font-size-xl);
-        font-weight: 700;
-        line-height: 1.3;
-    }
-
-    .event-meta {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
-        margin-bottom: var(--spacing-md);
-    }
-
-    .meta-item {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-        color: var(--text-secondary-dark);
-        font-size: var(--font-size-base);
-        font-weight: 500;
-    }
-
-    .meta-icon {
-        font-size: var(--font-size-base);
-    }
-
-    .event-description {
-        color: var(--text-primary);
-        line-height: 1.7;
-        margin-bottom: var(--spacing-md);
-        flex: 1;
-        font-size: var(--font-size-base);
-    }
-
-    .event-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: var(--spacing-md);
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-        gap: var(--spacing-md);
-    }
-
-    .event-attendees {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        color: var(--text-secondary-dark);
-        font-size: var(--font-size-base);
-        font-weight: 500;
-    }
-
-    .attendees-icon {
-        font-size: var(--font-size-base);
-    }
-
-    .attendees-count {
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .attendees-label {
-        color: var(--text-secondary);
-    }
-
-    .btn-rsvp {
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        color: white;
-        border: none;
+        background-color: var(--bg-secondary);
+        padding: 0.5rem 0.75rem;
         border-radius: var(--radius-md);
-        cursor: pointer;
+        min-width: 60px;
+        height: fit-content;
+        border: 1px solid #e2e8f0;
+    }
+
+    .date-badge .month {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
         font-weight: 700;
-        transition: all var(--transition-base);
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        box-shadow: var(--shadow-sm);
-        white-space: nowrap;
+        color: var(--secondary-color);
+        line-height: 1;
+        margin-bottom: 2px;
     }
 
-    .btn-rsvp:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-        opacity: 0.95;
-    }
-
-    .btn-rsvp:active:not(:disabled) {
-        transform: translateY(0);
-    }
-
-    .btn-rsvp:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-        background: var(--text-light);
-    }
-
-    .btn-rsvp-cancelled {
-        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    }
-
-    .btn-rsvp-cancelled:hover {
-        background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-    }
-
-    .loading-container {
-        text-align: center;
-        padding: var(--spacing-2xl);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: var(--spacing-md);
-    }
-
-    .loading-spinner-large {
-        width: 60px;
-        height: 60px;
-        border: 4px solid rgba(255, 255, 255, 0.2);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    .loading-text {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: var(--font-size-lg);
-        font-weight: 500;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: var(--spacing-2xl);
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .empty-icon {
-        font-size: 4rem;
-        margin-bottom: var(--spacing-md);
-        opacity: 0.8;
-    }
-
-    .empty-state h3 {
-        color: white;
-        font-size: var(--font-size-2xl);
-        margin-bottom: var(--spacing-sm);
+    .date-badge .day {
+        display: block;
+        font-size: 1.25rem;
         font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
     }
 
-    .empty-state p {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: var(--font-size-base);
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
-
-    @@media (max-width: 768px) {
-        .events-grid {
-            grid-template-columns: 1fr;
-            gap: var(--spacing-lg);
-        }
-
-        .events-container {
-            padding: var(--spacing-md);
-        }
-
-        .event-card {
-            flex-direction: column;
-        }
-
-        .event-date-badge {
-            align-self: flex-start;
-        }
-
-        .event-footer {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .btn-rsvp {
-            width: 100%;
-            justify-content: center;
-        }
+    
+    .text-tertiary {
+        color: var(--text-tertiary);
     }
 </style>
+
 

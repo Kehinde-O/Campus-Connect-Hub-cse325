@@ -7,55 +7,59 @@
 
 <PageTitle>Register - Campus Connect Hub</PageTitle>
 
-<div class="auth-container">
-    <div class="auth-card">
-        <h2>Create Account</h2>
-        <p class="subtitle">Join Campus Connect Hub</p>
+<div class="auth-wrapper">
+    <div class="auth-card-container">
+        <div class="auth-header">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Join the community today</p>
+        </div>
 
         @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="alert alert-danger">
-                <span class="alert-icon">!</span>
-                <span>@errorMessage</span>
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @errorMessage
             </div>
         }
 
         <EditForm Model="@registerRequest" OnValidSubmit="@HandleRegister">
             <DataAnnotationsValidator />
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">
-                        <span class="label-text">First Name</span>
-                    </label>
-                    <InputText @bind-Value="registerRequest.FirstName" class="form-control" placeholder="Enter your first name" />
+            
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <label class="form-label">First Name</label>
+                    <InputText @bind-Value="registerRequest.FirstName" class="form-control" placeholder="Jane" />
                     <ValidationMessage For="@(() => registerRequest.FirstName)" />
                 </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        <span class="label-text">Last Name</span>
-                    </label>
-                    <InputText @bind-Value="registerRequest.LastName" class="form-control" placeholder="Enter your last name" />
+                <div class="col-6">
+                    <label class="form-label">Last Name</label>
+                    <InputText @bind-Value="registerRequest.LastName" class="form-control" placeholder="Doe" />
                     <ValidationMessage For="@(() => registerRequest.LastName)" />
                 </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">
-                    <span class="label-text">Email Address</span>
-                </label>
-                <InputText @bind-Value="registerRequest.Email" class="form-control" placeholder="Enter your email" />
+
+            <div class="form-group mb-3">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-icon"><i class="bi bi-envelope"></i></span>
+                    <InputText @bind-Value="registerRequest.Email" class="form-control" placeholder="student@university.edu" />
+                </div>
                 <ValidationMessage For="@(() => registerRequest.Email)" />
             </div>
-            <div class="form-group">
-                <label class="form-label">
-                    <span class="label-text">Password</span>
-                </label>
-                <InputText type="password" @bind-Value="registerRequest.Password" class="form-control" placeholder="Create a password" />
+
+            <div class="form-group mb-4">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-icon"><i class="bi bi-lock"></i></span>
+                    <InputText type="password" @bind-Value="registerRequest.Password" class="form-control" placeholder="Create a strong password" />
+                </div>
                 <ValidationMessage For="@(() => registerRequest.Password)" />
             </div>
-            <button type="submit" class="btn btn-primary" disabled="@isLoading">
+
+            <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
                 @if (isLoading)
                 {
-                    <span class="loading-spinner"></span>
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     <span>Creating account...</span>
                 }
                 else
@@ -65,9 +69,9 @@
             </button>
         </EditForm>
 
-        <p class="auth-link">
-            Already have an account? <a href="/login">Sign in here</a>
-        </p>
+        <div class="auth-footer">
+            <p>Already have an account? <a href="login" class="link-primary">Sign in</a></p>
+        </div>
     </div>
 </div>
 
@@ -106,15 +110,15 @@
         {
             if (ex.Message.Contains("Email already registered"))
             {
-                errorMessage = "This email is already registered. Please use a different email or try logging in.";
+                errorMessage = "This email is already registered.";
             }
             else if (ex.Message.Contains("400") || ex.Message.Contains("BadRequest"))
             {
-                errorMessage = "Invalid registration information. Please check your details and try again.";
+                errorMessage = "Invalid registration information.";
             }
             else if (ex.Message.Contains("Failed to fetch") || ex.Message.Contains("NetworkError"))
             {
-                errorMessage = "Unable to connect to the server. Please check your connection and ensure the API is running.";
+                errorMessage = "Unable to connect to the server.";
             }
             else
             {
@@ -133,196 +137,92 @@
 }
 
 <style>
-    .auth-container {
+    .auth-wrapper {
         display: flex;
         justify-content: center;
-        align-items: center;
-        min-height: calc(100vh - 3.5rem);
-        padding: var(--spacing-xl);
-        position: relative;
+        padding-top: var(--spacing-2xl);
+        min-height: calc(100vh - 80px);
+        background-color: var(--bg-primary);
     }
 
-    .auth-card {
-        background: var(--bg-glass);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: var(--radius-2xl);
-        padding: var(--spacing-2xl);
+    .auth-card-container {
         width: 100%;
-        max-width: 500px;
-        box-shadow: var(--shadow-xl);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        animation: slideUp 0.4s ease-out;
+        max-width: 480px;
+        padding: var(--spacing-xl);
+        background-color: var(--bg-surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        height: fit-content;
+        border: 1px solid #e2e8f0;
     }
 
-    @@keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .auth-card h2 {
-        margin-bottom: var(--spacing-sm);
-        color: var(--text-primary);
-        font-size: var(--font-size-3xl);
-        font-weight: 800;
+    .auth-header {
         text-align: center;
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        margin-bottom: var(--spacing-xl);
     }
 
-    .subtitle {
+    .auth-title {
+        color: var(--primary-color);
+        font-size: 1.75rem;
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .auth-subtitle {
         color: var(--text-secondary);
-        margin-bottom: var(--spacing-2xl);
-        text-align: center;
-        font-size: var(--font-size-base);
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-lg);
-    }
-
-    .form-group {
-        margin-bottom: var(--spacing-lg);
+        font-size: 0.95rem;
     }
 
     .form-label {
         display: block;
-        margin-bottom: var(--spacing-sm);
+        margin-bottom: var(--spacing-xs);
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 0.9rem;
     }
 
-    .label-text {
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: var(--font-size-sm);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .input-group {
+        position: relative;
+    }
+
+    .input-group-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-tertiary);
+        z-index: 10;
+        pointer-events: none;
     }
 
     .form-control {
-        width: 100%;
-        padding: var(--spacing-md);
-        border: 2px solid #e0e0e0;
-        border-radius: var(--radius-md);
-        font-size: var(--font-size-base);
-        transition: all var(--transition-base);
-        background: white;
+        padding-left: 2.75rem;
     }
 
-    .form-control:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
+    .w-100 { width: 100%; }
+    .me-2 { margin-right: 0.5rem; }
+    
+    .row { display: flex; flex-wrap: wrap; margin-right: -0.5rem; margin-left: -0.5rem; }
+    .g-3 { --bs-gutter-y: 1rem; --bs-gutter-x: 1rem; }
+    .col-6 { flex: 0 0 auto; width: 50%; padding-right: 0.5rem; padding-left: 0.5rem; }
 
-    .form-control:focus:not(:focus-visible) {
-        outline: none;
-    }
-
-    .form-control::placeholder {
-        color: var(--text-light);
-    }
-
-    .btn-primary {
-        width: 100%;
-        padding: var(--spacing-md);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        color: white;
-        border: none;
-        border-radius: var(--radius-md);
-        font-size: var(--font-size-base);
-        font-weight: 700;
-        cursor: pointer;
-        transition: all var(--transition-base);
-        box-shadow: var(--shadow-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: var(--spacing-sm);
+    .auth-footer {
         margin-top: var(--spacing-lg);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .btn-primary:active:not(:disabled) {
-        transform: translateY(0);
-    }
-
-    .btn-primary:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .auth-link {
         text-align: center;
-        margin-top: var(--spacing-xl);
+        font-size: 0.9rem;
         color: var(--text-secondary);
-        font-size: var(--font-size-sm);
+        border-top: 1px solid #edf2f7;
+        padding-top: var(--spacing-md);
     }
 
-    .auth-link a {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 700;
-        transition: color var(--transition-base);
+    .link-primary {
+        color: var(--secondary-color);
+        font-weight: 600;
     }
 
-    .auth-link a:hover {
-        color: var(--primary-dark);
+    .link-primary:hover {
+        color: var(--secondary-dark);
         text-decoration: underline;
     }
-
-    .alert {
-        padding: var(--spacing-md);
-        border-radius: var(--radius-md);
-        margin-bottom: var(--spacing-lg);
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-        animation: shake 0.4s ease;
-    }
-
-    @@keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
-    .alert-danger {
-        background-color: rgba(231, 76, 60, 0.15);
-        color: var(--error-color);
-        border: 2px solid rgba(231, 76, 60, 0.3);
-    }
-
-    .alert-icon {
-        font-size: var(--font-size-lg);
-    }
-
-    @@media (max-width: 640px) {
-        .auth-container {
-            padding: var(--spacing-md);
-        }
-
-        .auth-card {
-            padding: var(--spacing-xl);
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-    }
 </style>
+
 

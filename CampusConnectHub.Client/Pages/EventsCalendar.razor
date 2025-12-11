@@ -6,71 +6,76 @@
 
 <PageTitle>Events Calendar - Campus Connect Hub</PageTitle>
 
-<div class="calendar-container">
-    <div class="header-section">
-        <h1>Events Calendar</h1>
-        <p class="subtitle">View all events in a calendar format</p>
-    </div>
+<div class="content-header text-center mb-4">
+    <h1 class="display-4 fw-bold text-primary">Events Calendar</h1>
+    <p class="lead text-secondary">View all events in a calendar format</p>
+</div>
 
-    <div class="calendar-controls">
-        <button class="btn-nav" @onclick="PreviousMonth">
-            <span>←</span> Previous
+<div class="calendar-container container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <button class="btn btn-secondary" @onclick="PreviousMonth">
+            <i class="bi bi-chevron-left"></i> Previous
         </button>
-        <div class="current-month">
-            <h2>@currentMonth.ToString("MMMM yyyy")</h2>
+        <h2 class="h3 fw-bold text-primary mb-0">@currentMonth.ToString("MMMM yyyy")</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" @onclick="GoToToday">Today</button>
+            <button class="btn btn-secondary" @onclick="NextMonth">
+                Next <i class="bi bi-chevron-right"></i>
+            </button>
         </div>
-        <button class="btn-nav" @onclick="NextMonth">
-            Next <span>→</span>
-        </button>
-        <button class="btn-today" @onclick="GoToToday">
-            Today
-        </button>
     </div>
 
     @if (isLoading)
     {
-        <div class="loading-container">
-            <div class="loading-spinner-large"></div>
-            <p class="loading-text">Loading events...</p>
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-secondary">Loading events...</p>
         </div>
     }
     else
     {
-        <div class="calendar-wrapper">
-            <div class="calendar-header">
-                @foreach (var day in dayNames)
-                {
-                    <div class="calendar-day-header">@day</div>
-                }
-            </div>
-            <div class="calendar-grid">
-                @for (int i = 0; i < firstDayOfMonth; i++)
-                {
-                    <div class="calendar-day empty"></div>
-                }
-                @for (int day = 1; day <= daysInMonth; day++)
-                {
-                    var date = new DateTime(currentMonth.Year, currentMonth.Month, day);
-                    var dayEvents = events.Where(e => e.EventDate.Date == date.Date).ToList();
-                    var isToday = date.Date == DateTime.Today;
-                    var isPast = date.Date < DateTime.Today;
+        <div class="calendar-card card shadow-sm">
+            <div class="card-body p-0">
+                <div class="calendar-header-row bg-light border-bottom">
+                    @foreach (var day in dayNames)
+                    {
+                        <div class="calendar-day-header py-2 text-center text-uppercase fw-bold text-secondary small">@day</div>
+                    }
+                </div>
+                <div class="calendar-grid">
+                    @for (int i = 0; i < firstDayOfMonth; i++)
+                    {
+                        <div class="calendar-day empty bg-light"></div>
+                    }
+                    @for (int day = 1; day <= daysInMonth; day++)
+                    {
+                        var date = new DateTime(currentMonth.Year, currentMonth.Month, day);
+                        var dayEvents = events.Where(e => e.EventDate.Date == date.Date).ToList();
+                        var isToday = date.Date == DateTime.Today;
+                        var isPast = date.Date < DateTime.Today;
 
-                    <div class="calendar-day @(isToday ? "today" : "") @(isPast ? "past" : "")">
-                        <div class="day-number">@day</div>
-                        <div class="day-events">
-                            @foreach (var eventItem in dayEvents.Take(3))
-                            {
-                                <div class="event-dot" title="@eventItem.Title" @onclick="() => ShowEventDetails(eventItem)">
-                                    @eventItem.Title.Substring(0, Math.Min(15, eventItem.Title.Length))@(eventItem.Title.Length > 15 ? "..." : "")
-                                </div>
-                            }
-                            @if (dayEvents.Count > 3)
-                            {
-                                <div class="event-more">+@(dayEvents.Count - 3) more</div>
-                            }
+                        <div class="calendar-day @(isToday ? "today" : "") @(isPast ? "past" : "") p-2">
+                            <div class="day-number @(isToday ? "fw-bold text-primary" : "text-secondary") mb-1">
+                                @day @if(isToday){ <span class="badge bg-primary ms-1" style="font-size: 0.6rem;">TODAY</span> }
+                            </div>
+                            <div class="day-events">
+                                @foreach (var eventItem in dayEvents.Take(3))
+                                {
+                                    <div class="event-dot badge bg-primary text-start w-100 fw-normal mb-1 text-truncate" 
+                                         style="cursor: pointer;" 
+                                         title="@eventItem.Title" 
+                                         @onclick="() => ShowEventDetails(eventItem)">
+                                        @eventItem.Title
+                                    </div>
+                                }
+                                @if (dayEvents.Count > 3)
+                                {
+                                    <div class="event-more text-muted small text-center">+@(dayEvents.Count - 3) more</div>
+                                }
+                            </div>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             </div>
         </div>
     }
@@ -79,30 +84,44 @@
 @if (selectedEvent != null)
 {
     <Modal IsVisible="true" Title="Event Details" OnClose="CloseEventDetails">
-        <div class="event-details">
-            <h3>@selectedEvent.Title</h3>
-            <div class="event-detail-item">
-                <span class="detail-label">Date & Time:</span>
+        <div class="event-details-content">
+            <h3 class="h4 text-primary mb-3">@selectedEvent.Title</h3>
+            
+            <div class="d-flex align-items-center gap-2 mb-2 text-secondary">
+                <i class="bi bi-calendar-event text-tertiary"></i>
                 <span>@selectedEvent.EventDate.ToString("MMMM dd, yyyy 'at' h:mm tt")</span>
             </div>
-            <div class="event-detail-item">
-                <span class="detail-label">Location:</span>
+            
+            <div class="d-flex align-items-center gap-2 mb-3 text-secondary">
+                <i class="bi bi-geo-alt text-tertiary"></i>
                 <span>@selectedEvent.Location</span>
             </div>
-            <div class="event-detail-item">
-                <span class="detail-label">Description:</span>
-                <p>@selectedEvent.Description</p>
+            
+            <hr />
+            
+            <div class="mb-3">
+                <label class="fw-bold text-secondary small text-uppercase mb-1">Description</label>
+                <p class="text-body">@selectedEvent.Description</p>
             </div>
-            <div class="event-detail-item">
-                <span class="detail-label">Attendees:</span>
-                <span>@selectedEvent.CurrentAttendees@(selectedEvent.MaxAttendees.HasValue ? $"/{selectedEvent.MaxAttendees}" : "")</span>
+            
+            <div class="mb-4">
+                <label class="fw-bold text-secondary small text-uppercase mb-1">Attendees</label>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-people-fill text-muted"></i>
+                    <span class="fw-bold">@selectedEvent.CurrentAttendees</span>
+                    @if (selectedEvent.MaxAttendees.HasValue)
+                    {
+                        <span class="text-muted">/ @selectedEvent.MaxAttendees</span>
+                    }
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" @onclick="CloseEventDetails">Close</button>
+
+            <div class="modal-footer px-0 pb-0 border-0">
+                <button class="btn btn-secondary" @onclick="CloseEventDetails">Close</button>
                 @if (isAuthenticated && !selectedEvent.IsUserRSVPed && selectedEvent.EventDate >= DateTime.UtcNow)
                 {
-                    <button class="btn-primary" @onclick="() => RSVPToEvent(selectedEvent.Id)">
-                        RSVP
+                    <button class="btn btn-primary" @onclick="() => RSVPToEvent(selectedEvent.Id)">
+                        RSVP Now
                     </button>
                 }
             </div>
@@ -189,288 +208,69 @@
 
 <style>
     .calendar-container {
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
-        padding: var(--spacing-xl);
     }
 
-    .header-section {
-        margin-bottom: var(--spacing-2xl);
-        text-align: center;
+    .calendar-card {
+        border-radius: var(--radius-lg);
+        overflow: hidden;
     }
 
-    .header-section h1 {
-        font-size: var(--font-size-4xl);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: var(--spacing-sm);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-    }
-
-    .subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: var(--font-size-lg);
-        font-weight: 400;
-    }
-
-    .calendar-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--spacing-xl);
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
-    }
-
-    .current-month h2 {
-        color: var(--text-primary);
-        font-size: var(--font-size-2xl);
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .btn-nav {
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-primary);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 600;
-        transition: all var(--transition-base);
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-    }
-
-    .btn-nav:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-today {
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        color: white;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 700;
-        transition: all var(--transition-base);
-    }
-
-    .btn-today:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .calendar-wrapper {
-        background: var(--bg-glass);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: var(--radius-xl);
-        padding: var(--spacing-xl);
-        box-shadow: var(--shadow-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .calendar-header {
+    .calendar-header-row {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: var(--spacing-sm);
-        margin-bottom: var(--spacing-md);
-    }
-
-    .calendar-day-header {
-        text-align: center;
-        font-weight: 700;
-        color: var(--text-primary);
-        padding: var(--spacing-sm);
-        font-size: var(--font-size-sm);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: var(--spacing-sm);
+        border-left: 1px solid rgba(0,0,0,0.05); /* Close left border */
     }
 
     .calendar-day {
         min-height: 120px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius-md);
-        padding: var(--spacing-sm);
-        transition: all var(--transition-base);
-        cursor: pointer;
-    }
-
-    .calendar-day:hover:not(.empty) {
-        background: rgba(255, 255, 255, 0.1);
-        transform: scale(1.02);
+        background: white;
+        border-right: 1px solid rgba(0,0,0,0.05);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: background-color 0.2s ease;
     }
 
     .calendar-day.empty {
-        background: transparent;
-        border: none;
-        cursor: default;
+        background-color: #f8f9fa;
     }
-
+    
     .calendar-day.today {
-        background: rgba(102, 126, 234, 0.2);
-        border-color: var(--primary-color);
-        border-width: 2px;
+        background-color: rgba(49, 151, 149, 0.05); /* Tinted with secondary color */
     }
 
     .calendar-day.past {
-        opacity: 0.6;
+        background-color: #fcfcfc;
+    }
+    
+    .calendar-day:hover:not(.empty) {
+        background-color: #f1f5f9;
     }
 
-    .day-number {
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: var(--spacing-xs);
-        font-size: var(--font-size-lg);
+    .text-tertiary {
+        color: var(--text-tertiary);
     }
-
-    .day-events {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-    }
-
+    
     .event-dot {
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        color: white;
-        padding: var(--spacing-xs) var(--spacing-sm);
-        border-radius: var(--radius-sm);
-        font-size: var(--font-size-xs);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all var(--transition-base);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 0.75rem;
     }
-
-    .event-dot:hover {
-        transform: scale(1.05);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .event-more {
-        color: var(--text-secondary);
-        font-size: var(--font-size-xs);
-        font-weight: 600;
-        padding: var(--spacing-xs);
-    }
-
-    .event-details {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-lg);
-    }
-
-    .event-details h3 {
-        margin: 0;
-        color: var(--text-primary);
-        font-size: var(--font-size-2xl);
-        font-weight: 700;
-    }
-
-    .event-detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-    }
-
-    .detail-label {
-        font-weight: 700;
-        color: var(--text-primary);
-        font-size: var(--font-size-sm);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .event-detail-item span:not(.detail-label),
-    .event-detail-item p {
-        color: var(--text-secondary);
-        font-size: var(--font-size-base);
-        margin: 0;
-    }
-
-    .loading-container {
-        text-align: center;
-        padding: var(--spacing-2xl);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: var(--spacing-md);
-    }
-
-    .loading-spinner-large {
-        width: 60px;
-        height: 60px;
-        border: 4px solid rgba(255, 255, 255, 0.2);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    .loading-text {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: var(--font-size-lg);
-        font-weight: 500;
-    }
-
-    .btn-secondary {
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-primary);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 600;
-        transition: all var(--transition-base);
-    }
-
-    .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-primary {
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-        color: white;
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-        font-weight: 700;
-        transition: all var(--transition-base);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
+    
     @@media (max-width: 768px) {
-        .calendar-container {
-            padding: var(--spacing-md);
-        }
-
         .calendar-day {
             min-height: 80px;
+            font-size: 0.8rem;
         }
-
+        
         .event-dot {
-            font-size: 10px;
+            font-size: 0.65rem;
             padding: 2px 4px;
         }
     }
 </style>
+
 
