@@ -21,6 +21,20 @@
   <ItemGroup>
     <ProjectReference Include="..\CampusConnectHub.Infrastructure\CampusConnectHub.Infrastructure.csproj" />
     <ProjectReference Include="..\CampusConnectHub.Shared\CampusConnectHub.Shared.csproj" />
+    <ProjectReference Include="..\CampusConnectHub.Client\CampusConnectHub.Client.csproj" />
   </ItemGroup>
+
+  <Target Name="PublishBlazorClient" BeforeTargets="Publish">
+    <MSBuild Projects="..\CampusConnectHub.Client\CampusConnectHub.Client.csproj" Targets="Publish" Properties="Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="CopyBlazorAssets" AfterTargets="Publish">
+    <ItemGroup>
+      <_BlazorFrameworkFiles Include="..\CampusConnectHub.Client\bin\$(Configuration)\net8.0\publish\wwwroot\_framework\**\*.*" />
+      <_BlazorWwwRootFiles Include="..\CampusConnectHub.Client\wwwroot\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_BlazorFrameworkFiles)" DestinationFolder="$(PublishDir)wwwroot\_framework\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_BlazorWwwRootFiles)" DestinationFolder="$(PublishDir)wwwroot\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

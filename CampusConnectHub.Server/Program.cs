@@ -114,11 +114,24 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 // Ensure database is created and seeded
-using (var scope = app.Services.CreateScope())
+// Run asynchronously to avoid blocking startup
+_ = Task.Run(async () =>
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
-    CampusConnectHub.Infrastructure.Data.DatabaseSeeder.Seed(dbContext);
-}
+    try
+    {
+        await Task.Delay(2000); // Wait 2 seconds for app to fully start
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await dbContext.Database.EnsureCreatedAsync();
+            CampusConnectHub.Infrastructure.Data.DatabaseSeeder.Seed(dbContext);
+        }
+    }
+    catch (Exception ex)
+    {
+        // Log error but don't block startup
+        Console.WriteLine($"Database initialization error: {ex.Message}");
+    }
+});
 
 app.Run();
