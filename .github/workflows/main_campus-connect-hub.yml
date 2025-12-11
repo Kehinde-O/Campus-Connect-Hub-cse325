@@ -31,10 +31,10 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish Client (Blazor WebAssembly)
-        run: dotnet publish CampusConnectHub.Client/CampusConnectHub.Client.csproj -c Release -o ./client-publish --no-build
+        run: dotnet publish CampusConnectHub.Client/CampusConnectHub.Client.csproj -c Release -o ./client-publish
 
       - name: Publish Server (API)
-        run: dotnet publish CampusConnectHub.Server/CampusConnectHub.Server.csproj -c Release -o ./server-publish --no-build
+        run: dotnet publish CampusConnectHub.Server/CampusConnectHub.Server.csproj -c Release -o ./server-publish
 
       - name: Copy Client wwwroot to Server wwwroot
         run: |
