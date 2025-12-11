@@ -24,7 +24,8 @@ public class NewsController : ControllerBase
     public async Task<ActionResult<PagedResponse<NewsPostDto>>> GetNews(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] bool publishedOnly = true)
+        [FromQuery] bool publishedOnly = true,
+        [FromQuery] string? search = null)
     {
         var query = _context.NewsPosts
             .Include(n => n.Author)
@@ -33,6 +34,14 @@ public class NewsController : ControllerBase
         if (publishedOnly)
         {
             query = query.Where(n => n.IsPublished);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchLower = search.ToLower();
+            query = query.Where(n => 
+                n.Title.ToLower().Contains(searchLower) || 
+                n.Content.ToLower().Contains(searchLower));
         }
 
         var totalCount = await query.CountAsync();

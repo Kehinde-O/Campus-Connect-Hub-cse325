@@ -86,6 +86,9 @@ builder.Services.AddScoped<CampusConnectHub.Server.Services.JwtService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Add global exception handler first to catch all exceptions
+app.UseMiddleware<CampusConnectHub.Server.Middleware.GlobalExceptionHandler>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

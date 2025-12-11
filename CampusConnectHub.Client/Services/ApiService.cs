@@ -31,11 +31,16 @@ public class ApiService
     }
 
     // News API
-    public async Task<PagedResponse<NewsPostDto>> GetNewsAsync(int pageNumber = 1, int pageSize = 10)
+    public async Task<PagedResponse<NewsPostDto>> GetNewsAsync(int pageNumber = 1, int pageSize = 10, string? search = null)
     {
         await SetAuthHeaderAsync();
+        var queryParams = $"pageNumber={pageNumber}&pageSize={pageSize}";
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            queryParams += $"&search={Uri.EscapeDataString(search)}";
+        }
         return await _httpClient.GetFromJsonAsync<PagedResponse<NewsPostDto>>(
-            $"api/news?pageNumber={pageNumber}&pageSize={pageSize}") ?? new PagedResponse<NewsPostDto>();
+            $"api/news?{queryParams}") ?? new PagedResponse<NewsPostDto>();
     }
 
     public async Task<NewsPostDto?> GetNewsPostAsync(int id)
@@ -66,11 +71,28 @@ public class ApiService
     }
 
     // Events API
-    public async Task<List<EventDto>> GetEventsAsync(bool upcomingOnly = true)
+    public async Task<List<EventDto>> GetEventsAsync(bool upcomingOnly = true, string? search = null, string? location = null, DateTime? startDate = null, DateTime? endDate = null)
     {
         await SetAuthHeaderAsync();
+        var queryParams = $"upcomingOnly={upcomingOnly}";
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            queryParams += $"&search={Uri.EscapeDataString(search)}";
+        }
+        if (!string.IsNullOrWhiteSpace(location))
+        {
+            queryParams += $"&location={Uri.EscapeDataString(location)}";
+        }
+        if (startDate.HasValue)
+        {
+            queryParams += $"&startDate={startDate.Value:yyyy-MM-ddTHH:mm:ssZ}";
+        }
+        if (endDate.HasValue)
+        {
+            queryParams += $"&endDate={endDate.Value:yyyy-MM-ddTHH:mm:ssZ}";
+        }
         return await _httpClient.GetFromJsonAsync<List<EventDto>>(
-            $"api/events?upcomingOnly={upcomingOnly}") ?? new List<EventDto>();
+            $"api/events?{queryParams}") ?? new List<EventDto>();
     }
 
     public async Task<EventDto?> GetEventAsync(int id)
@@ -154,6 +176,91 @@ public class ApiService
     {
         await SetAuthHeaderAsync();
         return await _httpClient.GetFromJsonAsync<AdminDashboardDto>("api/admin/dashboard");
+    }
+
+    public async Task<AnalyticsDto?> GetAnalyticsAsync()
+    {
+        await SetAuthHeaderAsync();
+        return await _httpClient.GetFromJsonAsync<AnalyticsDto>("api/admin/analytics");
+    }
+
+    // Profile API
+    public async Task<AuthResponse?> UpdateProfileAsync(UpdateProfileDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PutAsJsonAsync("api/auth/profile", dto);
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<AuthResponse>();
+        }
+        return null;
+    }
+
+    public async Task<bool> ChangePasswordAsync(ChangePasswordDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsJsonAsync("api/auth/change-password", dto);
+        return response.IsSuccessStatusCode;
+    }
+
+    // User Management API
+    public async Task<PagedResponse<UserDto>> GetUsersAsync(int pageNumber = 1, int pageSize = 20, string? search = null, string? role = null)
+    {
+        await SetAuthHeaderAsync();
+        var queryParams = $"pageNumber={pageNumber}&pageSize={pageSize}";
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            queryParams += $"&search={Uri.EscapeDataString(search)}";
+        }
+        if (!string.IsNullOrWhiteSpace(role))
+        {
+            queryParams += $"&role={Uri.EscapeDataString(role)}";
+        }
+        return await _httpClient.GetFromJsonAsync<PagedResponse<UserDto>>($"api/users?{queryParams}") ?? new PagedResponse<UserDto>();
+    }
+
+    public async Task<UserDto?> GetUserAsync(int id)
+    {
+        await SetAuthHeaderAsync();
+        return await _httpClient.GetFromJsonAsync<UserDto>($"api/users/{id}");
+    }
+
+    public async Task<bool> UpdateUserRoleAsync(int id, UpdateUserRoleDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PutAsJsonAsync($"api/users/{id}/role", dto);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteUserAsync(int id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.DeleteAsync($"api/users/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<UserActivityDto?> GetUserActivityAsync(int id)
+    {
+        await SetAuthHeaderAsync();
+        return await _httpClient.GetFromJsonAsync<UserActivityDto>($"api/users/{id}/activity");
+    }
+
+    // Event Attendees API
+    public async Task<List<EventAttendeeDto>> GetEventAttendeesAsync(int eventId)
+    {
+        await SetAuthHeaderAsync();
+        return await _httpClient.GetFromJsonAsync<List<EventAttendeeDto>>($"api/events/{eventId}/attendees") ?? new List<EventAttendeeDto>();
+    }
+
+    public async Task<byte[]?> ExportEventAttendeesAsync(int eventId)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync($"api/events/{eventId}/attendees/export");
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        return null;
     }
 }
 

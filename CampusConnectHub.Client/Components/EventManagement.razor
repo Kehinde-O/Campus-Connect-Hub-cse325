@@ -1,6 +1,14 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
+@using System.ComponentModel.DataAnnotations
 @inject ApiService ApiService
+
+@if (showAttendeesModal && selectedEventId.HasValue)
+{
+    <Modal IsVisible="true" Title="Event Attendees" OnClose="CloseAttendeesModal" ShowFooter="false">
+        <EventAttendeeManagement EventId="selectedEventId" OnClose="CloseAttendeesModal" />
+    </Modal>
+}
 
 <div class="management-list">
     @if (events.Any())
@@ -19,10 +27,17 @@
                             <div class="card-meta">
                                 <span class="meta-item">Location: @eventItem.Location</span>
                                 <span class="meta-item">Time: @eventItem.EventDate.ToString("h:mm tt")</span>
+                                @if (eventItem.MaxAttendees.HasValue)
+                                {
+                                    <span class="meta-item">Capacity: @eventItem.CurrentAttendees/@eventItem.MaxAttendees</span>
+                                }
                             </div>
                         </div>
                     </div>
                     <div class="card-actions">
+                        <button class="btn-action btn-attendees" @onclick="() => ViewAttendees(eventItem.Id)" title="View Attendees">
+                            <span>Attendees (@eventItem.CurrentAttendees)</span>
+                        </button>
                         <button class="btn-action btn-edit" @onclick="() => EditEvent(eventItem)" title="Edit">
                             <span>Edit</span>
                         </button>
@@ -43,8 +58,60 @@
     }
 </div>
 
+<Modal IsVisible="showModal" Title="@(isEditing ? "Edit Event" : "Create Event")" OnClose="CloseModal">
+    <EditForm Model="currentEvent" OnValidSubmit="SaveEvent">
+        <DataAnnotationsValidator />
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <InputText id="title" @bind-Value="currentEvent.Title" class="form-control" />
+            <ValidationMessage For="@(() => currentEvent.Title)" />
+        </div>
+        <div class="form-group">
+            <label for="description">Description *</label>
+            <InputTextArea id="description" @bind-Value="currentEvent.Description" class="form-control" rows="4" />
+            <ValidationMessage For="@(() => currentEvent.Description)" />
+        </div>
+        <div class="form-group">
+            <label for="eventDate">Event Date & Time *</label>
+            <InputDateTimeLocal id="eventDate" @bind-Value="eventDateLocal" class="form-control" />
+            <ValidationMessage For="@(() => currentEvent.EventDate)" />
+        </div>
+        <div class="form-group">
+            <label for="location">Location *</label>
+            <InputText id="location" @bind-Value="currentEvent.Location" class="form-control" />
+            <ValidationMessage For="@(() => currentEvent.Location)" />
+        </div>
+        <div class="form-group">
+            <label for="maxAttendees">Maximum Attendees (optional)</label>
+            <InputNumber id="maxAttendees" @bind-Value="currentEvent.MaxAttendees" class="form-control" />
+            <small class="form-hint">Leave empty for unlimited capacity</small>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" @onclick="CloseModal">Cancel</button>
+            <button type="submit" class="btn-primary" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <span>Saving...</span>
+                }
+                else
+                {
+                    <span>@(isEditing ? "Update" : "Create")</span>
+                }
+            </button>
+        </div>
+    </EditForm>
+</Modal>
+
 @code {
     private List<EventDto> events = new();
+    private bool showModal = false;
+    private bool isEditing = false;
+    private bool isSaving = false;
+    private CreateEventDto currentEvent = new();
+    private DateTime? eventDateLocal = null;
+    private int? editingEventId = null;
+    private bool showAttendeesModal = false;
+    private int? selectedEventId = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -58,13 +125,99 @@
 
     private void EditEvent(EventDto eventItem)
     {
-        // TODO: Implement edit functionality
+        isEditing = true;
+        editingEventId = eventItem.Id;
+        currentEvent = new CreateEventDto
+        {
+            Title = eventItem.Title,
+            Description = eventItem.Description,
+            EventDate = eventItem.EventDate,
+            Location = eventItem.Location,
+            MaxAttendees = eventItem.MaxAttendees
+        };
+        eventDateLocal = eventItem.EventDate;
+        showModal = true;
+    }
+
+    private void CreateNewEvent()
+    {
+        isEditing = false;
+        editingEventId = null;
+        currentEvent = new CreateEventDto { EventDate = DateTime.UtcNow.AddDays(7) };
+        eventDateLocal = currentEvent.EventDate;
+        showModal = true;
+    }
+
+    private async Task SaveEvent()
+    {
+        if (eventDateLocal.HasValue)
+        {
+            currentEvent.EventDate = eventDateLocal.Value;
+        }
+
+        isSaving = true;
+        try
+        {
+            bool success;
+            if (isEditing && editingEventId.HasValue)
+            {
+                success = await ApiService.UpdateEventAsync(editingEventId.Value, currentEvent);
+            }
+            else
+            {
+                success = await ApiService.CreateEventAsync(currentEvent);
+            }
+
+            if (success)
+            {
+                await LoadEvents();
+                CloseModal();
+            }
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        isEditing = false;
+        editingEventId = null;
+        currentEvent = new CreateEventDto();
+        eventDateLocal = null;
     }
 
     private async Task DeleteEvent(int id)
     {
-        await ApiService.DeleteEventAsync(id);
-        await LoadEvents();
+        if (await ConfirmDelete())
+        {
+            await ApiService.DeleteEventAsync(id);
+            await LoadEvents();
+        }
+    }
+
+    private async Task<bool> ConfirmDelete()
+    {
+        return await Task.FromResult(confirm("Are you sure you want to delete this event?"));
+    }
+
+    public void OpenCreateModal()
+    {
+        CreateNewEvent();
+    }
+
+    private void ViewAttendees(int eventId)
+    {
+        selectedEventId = eventId;
+        showAttendeesModal = true;
+    }
+
+    private void CloseAttendeesModal()
+    {
+        showAttendeesModal = false;
+        selectedEventId = null;
     }
 }
 
@@ -192,6 +345,16 @@
         transform: translateY(-1px);
     }
 
+    .btn-attendees {
+        background: rgba(39, 174, 96, 0.1);
+        color: var(--success-color);
+    }
+
+    .btn-attendees:hover {
+        background: rgba(39, 174, 96, 0.2);
+        transform: translateY(-1px);
+    }
+
     .empty-state {
         padding: var(--spacing-2xl);
         text-align: center;
@@ -207,6 +370,80 @@
     .empty-state p {
         font-size: var(--font-size-base);
         margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: var(--spacing-sm);
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: var(--spacing-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        font-size: var(--font-size-base);
+        font-family: inherit;
+        transition: all var(--transition-base);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-hint {
+        display: block;
+        margin-top: var(--spacing-xs);
+        color: var(--text-secondary);
+        font-size: var(--font-size-xs);
+    }
+
+    .btn-secondary {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        transition: all var(--transition-base);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 700;
+        transition: all var(--transition-base);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     @@media (max-width: 768px) {

@@ -46,6 +46,21 @@
         </div>
         @if (isAuthenticated)
         {
+            <div class="nav-item">
+                <NavLink class="nav-link" href="events/calendar">
+                    <span class="bi bi-calendar3" aria-hidden="true"></span> Calendar
+                </NavLink>
+            </div>
+            <div class="nav-item">
+                <NavLink class="nav-link" href="my-rsvps">
+                    <span class="bi bi-calendar-check" aria-hidden="true"></span> My RSVPs
+                </NavLink>
+            </div>
+            <div class="nav-item">
+                <NavLink class="nav-link" href="profile">
+                    <span class="bi bi-person-circle" aria-hidden="true"></span> Profile
+                </NavLink>
+            </div>
             @if (isAdmin)
             {
                 <div class="nav-item">

@@ -76,11 +76,11 @@ else
                             <span class="section-icon">News</span>
                             News Management
                         </h2>
-                        <button class="btn-primary" @onclick="() => showNewsModal = true">
+                        <button class="btn-primary" @onclick="newsManagementRef?.OpenCreateModal">
                             <span>+</span> Create News Post
                         </button>
                     </div>
-                    <NewsManagement />
+                    <NewsManagement @ref="newsManagementRef" />
                 </div>
 
                 <div class="admin-section">
@@ -89,11 +89,11 @@ else
                             <span class="section-icon">Events</span>
                             Event Management
                         </h2>
-                        <button class="btn-primary" @onclick="() => showEventModal = true">
+                        <button class="btn-primary" @onclick="eventManagementRef?.OpenCreateModal">
                             <span>+</span> Create Event
                         </button>
                     </div>
-                    <EventManagement />
+                    <EventManagement @ref="eventManagementRef" />
                 </div>
 
                 <div class="admin-section">
@@ -102,11 +102,31 @@ else
                             <span class="section-icon">Resources</span>
                             Resource Management
                         </h2>
-                        <button class="btn-primary" @onclick="() => showResourceModal = true">
+                        <button class="btn-primary" @onclick="resourceManagementRef?.OpenCreateModal">
                             <span>+</span> Create Resource
                         </button>
                     </div>
-                    <ResourceManagement />
+                    <ResourceManagement @ref="resourceManagementRef" />
+                </div>
+
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="section-icon">👥</span>
+                            User Management
+                        </h2>
+                    </div>
+                    <UserManagement />
+                </div>
+
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="section-icon">📊</span>
+                            Analytics Dashboard
+                        </h2>
+                    </div>
+                    <AnalyticsDashboard />
                 </div>
             </div>
         }
@@ -117,9 +137,9 @@ else
     private AdminDashboardDto? dashboard;
     private bool isLoading = true;
     private bool isAdmin = false;
-    private bool showNewsModal = false;
-    private bool showEventModal = false;
-    private bool showResourceModal = false;
+    private NewsManagement? newsManagementRef;
+    private EventManagement? eventManagementRef;
+    private ResourceManagement? resourceManagementRef;
 
     protected override async Task OnInitializedAsync()
     {

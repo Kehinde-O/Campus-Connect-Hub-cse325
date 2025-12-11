@@ -12,6 +12,12 @@
         <p class="subtitle">Discover and RSVP to campus events</p>
     </div>
 
+    <SearchBar Placeholder="Search events..." 
+               ShowFilters="true" 
+               FilterType="events"
+               OnFilter="HandleFilter" 
+               OnClear="HandleClearFilter" />
+
     @if (isLoading)
     {
         <div class="loading-container">
@@ -94,6 +100,10 @@
     private List<EventDto> events = new();
     private bool isLoading = true;
     private bool isAuthenticated = false;
+    private string? currentSearch = null;
+    private string? currentLocation = null;
+    private DateTime? currentStartDate = null;
+    private DateTime? currentEndDate = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -106,7 +116,7 @@
         isLoading = true;
         try
         {
-            events = await ApiService.GetEventsAsync(true);
+            events = await ApiService.GetEventsAsync(true, currentSearch, currentLocation, currentStartDate, currentEndDate);
         }
         catch
         {
@@ -116,6 +126,24 @@
         {
             isLoading = false;
         }
+    }
+
+    private async Task HandleFilter((string? search, string? location, DateTime? startDate, DateTime? endDate) filters)
+    {
+        currentSearch = filters.search;
+        currentLocation = filters.location;
+        currentStartDate = filters.startDate;
+        currentEndDate = filters.endDate;
+        await LoadEvents();
+    }
+
+    private async Task HandleClearFilter()
+    {
+        currentSearch = null;
+        currentLocation = null;
+        currentStartDate = null;
+        currentEndDate = null;
+        await LoadEvents();
     }
 
     private async Task RSVPToEvent(int eventId)

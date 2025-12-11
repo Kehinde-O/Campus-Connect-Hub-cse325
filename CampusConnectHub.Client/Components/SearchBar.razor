@@ -1,0 +1,208 @@
+@using System.ComponentModel.DataAnnotations
+
+<div class="search-bar-container">
+    <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <InputText @bind-Value="searchText" 
+                   class="search-input" 
+                   placeholder="@Placeholder"
+                   @onkeypress="HandleKeyPress" />
+        @if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            <button class="clear-button" @onclick="ClearSearch" title="Clear search">
+                <span>&times;</span>
+            </button>
+        }
+    </div>
+    @if (ShowFilters && FilterType == "events")
+    {
+        <div class="filter-section">
+            <InputText @bind-Value="locationFilter" 
+                       class="filter-input" 
+                       placeholder="Filter by location..." />
+            <InputDate @bind-Value="startDateFilter" 
+                       class="filter-input" 
+                       placeholder="Start date" />
+            <InputDate @bind-Value="endDateFilter" 
+                       class="filter-input" 
+                       placeholder="End date" />
+        </div>
+    }
+    <button class="search-button" @onclick="PerformSearch">
+        Search
+    </button>
+</div>
+
+@code {
+    [Parameter] public string Placeholder { get; set; } = "Search...";
+    [Parameter] public bool ShowFilters { get; set; } = false;
+    [Parameter] public string FilterType { get; set; } = "news";
+    [Parameter] public EventCallback<string> OnSearch { get; set; }
+    [Parameter] public EventCallback OnClear { get; set; }
+    [Parameter] public EventCallback<(string? search, string? location, DateTime? startDate, DateTime? endDate)> OnFilter { get; set; }
+
+    private string searchText = string.Empty;
+    private string? locationFilter = null;
+    private DateTime? startDateFilter = null;
+    private DateTime? endDateFilter = null;
+
+    private async Task PerformSearch()
+    {
+        if (ShowFilters && FilterType == "events")
+        {
+            await OnFilter.InvokeAsync((searchText, locationFilter, startDateFilter, endDateFilter));
+        }
+        else
+        {
+            await OnSearch.InvokeAsync(searchText);
+        }
+    }
+
+    private async Task ClearSearch()
+    {
+        searchText = string.Empty;
+        locationFilter = null;
+        startDateFilter = null;
+        endDateFilter = null;
+        await OnClear.InvokeAsync();
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await PerformSearch();
+        }
+    }
+}
+
+<style>
+    .search-bar-container {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .search-input-wrapper {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: var(--spacing-md);
+        color: var(--text-secondary);
+        font-size: var(--font-size-lg);
+        z-index: 1;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) calc(var(--spacing-xl) + var(--spacing-md));
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        font-size: var(--font-size-base);
+        font-family: inherit;
+        transition: all var(--transition-base);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .clear-button {
+        position: absolute;
+        right: var(--spacing-sm);
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-size: var(--font-size-xl);
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-base);
+    }
+
+    .clear-button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+
+    .filter-section {
+        display: flex;
+        gap: var(--spacing-sm);
+        flex-wrap: wrap;
+    }
+
+    .filter-input {
+        padding: var(--spacing-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        font-size: var(--font-size-sm);
+        font-family: inherit;
+        min-width: 150px;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .search-button {
+        padding: var(--spacing-md) var(--spacing-lg);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 700;
+        transition: all var(--transition-base);
+        white-space: nowrap;
+    }
+
+    .search-button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    @@media (max-width: 768px) {
+        .search-bar-container {
+            flex-direction: column;
+        }
+
+        .search-input-wrapper {
+            width: 100%;
+        }
+
+        .filter-section {
+            width: 100%;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .search-button {
+            width: 100%;
+        }
+    }
+</style>
+

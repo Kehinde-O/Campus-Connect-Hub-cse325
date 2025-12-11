@@ -1,5 +1,6 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
+@using System.ComponentModel.DataAnnotations
 @inject ApiService ApiService
 
 <div class="management-list">
@@ -17,6 +18,10 @@
                             <h4>@resource.Title</h4>
                             <div class="card-meta">
                                 <span class="meta-item">📁 @resource.Category</span>
+                                @if (!resource.IsActive)
+                                {
+                                    <span class="meta-item status-inactive">Inactive</span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -47,8 +52,75 @@
     }
 </div>
 
+<Modal IsVisible="showModal" Title="@(isEditing ? "Edit Resource" : "Create Resource")" OnClose="CloseModal">
+    <EditForm Model="currentResource" OnValidSubmit="SaveResource">
+        <DataAnnotationsValidator />
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <InputText id="title" @bind-Value="currentResource.Title" class="form-control" />
+            <ValidationMessage For="@(() => currentResource.Title)" />
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <InputTextArea id="description" @bind-Value="currentResource.Description" class="form-control" rows="3" />
+            <ValidationMessage For="@(() => currentResource.Description)" />
+        </div>
+        <div class="form-group">
+            <label for="url">URL *</label>
+            <InputText id="url" @bind-Value="currentResource.Url" class="form-control" type="url" />
+            <ValidationMessage For="@(() => currentResource.Url)" />
+        </div>
+        <div class="form-group">
+            <label for="category">Category *</label>
+            <InputSelect id="category" @bind-Value="currentResource.Category" class="form-control">
+                <option value="">Select a category</option>
+                <option value="Academic">Academic</option>
+                <option value="Library">Library</option>
+                <option value="Student Services">Student Services</option>
+                <option value="Health">Health</option>
+                <option value="Dining">Dining</option>
+                <option value="Housing">Housing</option>
+                <option value="Technology">Technology</option>
+                <option value="Sports">Sports</option>
+                <option value="Counseling">Counseling</option>
+                <option value="Support">Support</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => currentResource.Category)" />
+        </div>
+        <div class="form-group">
+            <label for="displayOrder">Display Order</label>
+            <InputNumber id="displayOrder" @bind-Value="currentResource.DisplayOrder" class="form-control" />
+            <small class="form-hint">Lower numbers appear first</small>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <InputCheckbox @bind-Value="currentResource.IsActive" />
+                <span>Active</span>
+            </label>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" @onclick="CloseModal">Cancel</button>
+            <button type="submit" class="btn-primary" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <span>Saving...</span>
+                }
+                else
+                {
+                    <span>@(isEditing ? "Update" : "Create")</span>
+                }
+            </button>
+        </div>
+    </EditForm>
+</Modal>
+
 @code {
     private List<ResourceDto> resources = new();
+    private bool showModal = false;
+    private bool isEditing = false;
+    private bool isSaving = false;
+    private CreateResourceDto currentResource = new();
+    private int? editingResourceId = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,13 +134,80 @@
 
     private void EditResource(ResourceDto resource)
     {
-        // TODO: Implement edit functionality
+        isEditing = true;
+        editingResourceId = resource.Id;
+        currentResource = new CreateResourceDto
+        {
+            Title = resource.Title,
+            Description = resource.Description,
+            Url = resource.Url,
+            Category = resource.Category,
+            DisplayOrder = resource.DisplayOrder,
+            IsActive = resource.IsActive
+        };
+        showModal = true;
+    }
+
+    private void CreateNewResource()
+    {
+        isEditing = false;
+        editingResourceId = null;
+        currentResource = new CreateResourceDto { IsActive = true, DisplayOrder = 0 };
+        showModal = true;
+    }
+
+    private async Task SaveResource()
+    {
+        isSaving = true;
+        try
+        {
+            bool success;
+            if (isEditing && editingResourceId.HasValue)
+            {
+                success = await ApiService.UpdateResourceAsync(editingResourceId.Value, currentResource);
+            }
+            else
+            {
+                success = await ApiService.CreateResourceAsync(currentResource);
+            }
+
+            if (success)
+            {
+                await LoadResources();
+                CloseModal();
+            }
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        isEditing = false;
+        editingResourceId = null;
+        currentResource = new CreateResourceDto();
     }
 
     private async Task DeleteResource(int id)
     {
-        await ApiService.DeleteResourceAsync(id);
-        await LoadResources();
+        if (await ConfirmDelete())
+        {
+            await ApiService.DeleteResourceAsync(id);
+            await LoadResources();
+        }
+    }
+
+    private async Task<bool> ConfirmDelete()
+    {
+        return await Task.FromResult(confirm("Are you sure you want to delete this resource?"));
+    }
+
+    public void OpenCreateModal()
+    {
+        CreateNewResource();
     }
 
     private string GetCategoryIcon(string category)
@@ -245,6 +384,93 @@
     .empty-state p {
         font-size: var(--font-size-base);
         margin: 0;
+    }
+
+    .status-inactive {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: var(--spacing-sm);
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: var(--spacing-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        font-size: var(--font-size-base);
+        font-family: inherit;
+        transition: all var(--transition-base);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-hint {
+        display: block;
+        margin-top: var(--spacing-xs);
+        color: var(--text-secondary);
+        font-size: var(--font-size-xs);
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        cursor: pointer;
+        color: var(--text-primary);
+    }
+
+    .btn-secondary {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        transition: all var(--transition-base);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 700;
+        transition: all var(--transition-base);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     @@media (max-width: 768px) {

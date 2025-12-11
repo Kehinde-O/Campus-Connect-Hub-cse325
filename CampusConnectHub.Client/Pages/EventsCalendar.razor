@@ -1,0 +1,476 @@
+@page "/events/calendar"
+@using CampusConnectHub.Client.Services
+@using CampusConnectHub.Shared.DTOs
+@inject ApiService ApiService
+@inject AuthService AuthService
+
+<PageTitle>Events Calendar - Campus Connect Hub</PageTitle>
+
+<div class="calendar-container">
+    <div class="header-section">
+        <h1>Events Calendar</h1>
+        <p class="subtitle">View all events in a calendar format</p>
+    </div>
+
+    <div class="calendar-controls">
+        <button class="btn-nav" @onclick="PreviousMonth">
+            <span>←</span> Previous
+        </button>
+        <div class="current-month">
+            <h2>@currentMonth.ToString("MMMM yyyy")</h2>
+        </div>
+        <button class="btn-nav" @onclick="NextMonth">
+            Next <span>→</span>
+        </button>
+        <button class="btn-today" @onclick="GoToToday">
+            Today
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner-large"></div>
+            <p class="loading-text">Loading events...</p>
+        </div>
+    }
+    else
+    {
+        <div class="calendar-wrapper">
+            <div class="calendar-header">
+                @foreach (var day in dayNames)
+                {
+                    <div class="calendar-day-header">@day</div>
+                }
+            </div>
+            <div class="calendar-grid">
+                @for (int i = 0; i < firstDayOfMonth; i++)
+                {
+                    <div class="calendar-day empty"></div>
+                }
+                @for (int day = 1; day <= daysInMonth; day++)
+                {
+                    var date = new DateTime(currentMonth.Year, currentMonth.Month, day);
+                    var dayEvents = events.Where(e => e.EventDate.Date == date.Date).ToList();
+                    var isToday = date.Date == DateTime.Today;
+                    var isPast = date.Date < DateTime.Today;
+
+                    <div class="calendar-day @(isToday ? "today" : "") @(isPast ? "past" : "")">
+                        <div class="day-number">@day</div>
+                        <div class="day-events">
+                            @foreach (var eventItem in dayEvents.Take(3))
+                            {
+                                <div class="event-dot" title="@eventItem.Title" @onclick="() => ShowEventDetails(eventItem)">
+                                    @eventItem.Title.Substring(0, Math.Min(15, eventItem.Title.Length))@(eventItem.Title.Length > 15 ? "..." : "")
+                                </div>
+                            }
+                            @if (dayEvents.Count > 3)
+                            {
+                                <div class="event-more">+@(dayEvents.Count - 3) more</div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@if (selectedEvent != null)
+{
+    <Modal IsVisible="true" Title="Event Details" OnClose="CloseEventDetails">
+        <div class="event-details">
+            <h3>@selectedEvent.Title</h3>
+            <div class="event-detail-item">
+                <span class="detail-label">Date & Time:</span>
+                <span>@selectedEvent.EventDate.ToString("MMMM dd, yyyy 'at' h:mm tt")</span>
+            </div>
+            <div class="event-detail-item">
+                <span class="detail-label">Location:</span>
+                <span>@selectedEvent.Location</span>
+            </div>
+            <div class="event-detail-item">
+                <span class="detail-label">Description:</span>
+                <p>@selectedEvent.Description</p>
+            </div>
+            <div class="event-detail-item">
+                <span class="detail-label">Attendees:</span>
+                <span>@selectedEvent.CurrentAttendees@(selectedEvent.MaxAttendees.HasValue ? $"/{selectedEvent.MaxAttendees}" : "")</span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseEventDetails">Close</button>
+                @if (isAuthenticated && !selectedEvent.IsUserRSVPed && selectedEvent.EventDate >= DateTime.UtcNow)
+                {
+                    <button class="btn-primary" @onclick="() => RSVPToEvent(selectedEvent.Id)">
+                        RSVP
+                    </button>
+                }
+            </div>
+        </div>
+    </Modal>
+}
+
+@code {
+    private List<EventDto> events = new();
+    private bool isLoading = true;
+    private bool isAuthenticated = false;
+    private DateTime currentMonth = DateTime.Now;
+    private EventDto? selectedEvent = null;
+    private readonly string[] dayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+
+    private int firstDayOfMonth => (int)new DateTime(currentMonth.Year, currentMonth.Month, 1).DayOfWeek;
+    private int daysInMonth => DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month);
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        isLoading = true;
+        try
+        {
+            events = await ApiService.GetEventsAsync(false);
+        }
+        catch
+        {
+            events = new List<EventDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void PreviousMonth()
+    {
+        currentMonth = currentMonth.AddMonths(-1);
+    }
+
+    private void NextMonth()
+    {
+        currentMonth = currentMonth.AddMonths(1);
+    }
+
+    private void GoToToday()
+    {
+        currentMonth = DateTime.Now;
+    }
+
+    private void ShowEventDetails(EventDto eventItem)
+    {
+        selectedEvent = eventItem;
+    }
+
+    private void CloseEventDetails()
+    {
+        selectedEvent = null;
+    }
+
+    private async Task RSVPToEvent(int eventId)
+    {
+        var success = await ApiService.RSVPToEventAsync(eventId);
+        if (success)
+        {
+            await LoadEvents();
+            if (selectedEvent != null)
+            {
+                var updatedEvent = events.FirstOrDefault(e => e.Id == selectedEvent.Id);
+                if (updatedEvent != null)
+                {
+                    selectedEvent = updatedEvent;
+                }
+            }
+        }
+    }
+}
+
+<style>
+    .calendar-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: var(--spacing-xl);
+    }
+
+    .header-section {
+        margin-bottom: var(--spacing-2xl);
+        text-align: center;
+    }
+
+    .header-section h1 {
+        font-size: var(--font-size-4xl);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: var(--spacing-sm);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: var(--font-size-lg);
+        font-weight: 400;
+    }
+
+    .calendar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-xl);
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .current-month h2 {
+        color: var(--text-primary);
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .btn-nav {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        transition: all var(--transition-base);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+    }
+
+    .btn-nav:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-today {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 700;
+        transition: all var(--transition-base);
+    }
+
+    .btn-today:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .calendar-wrapper {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .calendar-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .calendar-day-header {
+        text-align: center;
+        font-weight: 700;
+        color: var(--text-primary);
+        padding: var(--spacing-sm);
+        font-size: var(--font-size-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: var(--spacing-sm);
+    }
+
+    .calendar-day {
+        min-height: 120px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-sm);
+        transition: all var(--transition-base);
+        cursor: pointer;
+    }
+
+    .calendar-day:hover:not(.empty) {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.02);
+    }
+
+    .calendar-day.empty {
+        background: transparent;
+        border: none;
+        cursor: default;
+    }
+
+    .calendar-day.today {
+        background: rgba(102, 126, 234, 0.2);
+        border-color: var(--primary-color);
+        border-width: 2px;
+    }
+
+    .calendar-day.past {
+        opacity: 0.6;
+    }
+
+    .day-number {
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-xs);
+        font-size: var(--font-size-lg);
+    }
+
+    .day-events {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .event-dot {
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition-base);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .event-dot:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .event-more {
+        color: var(--text-secondary);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        padding: var(--spacing-xs);
+    }
+
+    .event-details {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+
+    .event-details h3 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+    }
+
+    .event-detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .detail-label {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: var(--font-size-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .event-detail-item span:not(.detail-label),
+    .event-detail-item p {
+        color: var(--text-secondary);
+        font-size: var(--font-size-base);
+        margin: 0;
+    }
+
+    .loading-container {
+        text-align: center;
+        padding: var(--spacing-2xl);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .loading-spinner-large {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: var(--font-size-lg);
+        font-weight: 500;
+    }
+
+    .btn-secondary {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        transition: all var(--transition-base);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 700;
+        transition: all var(--transition-base);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    @@media (max-width: 768px) {
+        .calendar-container {
+            padding: var(--spacing-md);
+        }
+
+        .calendar-day {
+            min-height: 80px;
+        }
+
+        .event-dot {
+            font-size: 10px;
+            padding: 2px 4px;
+        }
+    }
+</style>
+

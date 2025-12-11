@@ -146,6 +146,38 @@ See [AZURE-DEPLOYMENT-GUIDE.md](AZURE-DEPLOYMENT-GUIDE.md) for comprehensive Azu
 - Database initialization and migrations
 - Troubleshooting tips
 
+## Documentation
+
+- **[USER_GUIDE.md](USER_GUIDE.md)** - Comprehensive user guide for students and administrators
+- **[CODE_COMMENTS.md](CODE_COMMENTS.md)** - Code documentation standards and commenting guidelines
+- **[ACCESSIBILITY.md](ACCESSIBILITY.md)** - WCAG 2.1 Level AA compliance report
+- **[azure-deploy.md](azure-deploy.md)** - Azure deployment instructions
+
+## Project Requirements Compliance
+
+### ✅ Core Requirements
+- [x] .NET Blazor web application
+- [x] User authentication (JWT-based)
+- [x] CRUD operations (News, Events, Resources)
+- [x] Cloud deployment (Azure)
+- [x] GitHub repository
+- [x] Code comments and documentation
+- [x] User documentation
+
+### ✅ Design Standards
+- [x] Performance optimized
+- [x] Valid markup and styling
+- [x] WCAG 2.1 Level AA accessibility
+- [x] Responsive design
+- [x] Consistent branding
+- [x] Intuitive navigation
+
+### ✅ Error Handling
+- [x] Global exception handler
+- [x] User-friendly error messages
+- [x] Comprehensive error logging
+- [x] Graceful error recovery
+
 ## License
 
 This project is part of a CSE325 course assignment.

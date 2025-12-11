@@ -1,0 +1,169 @@
+@if (IsVisible)
+{
+    <div class="modal-backdrop" @onclick="HandleBackdropClick" @onkeydown="@((KeyboardEventArgs e) => HandleKeyDown(e))">
+        <div class="modal-container" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Title</h3>
+                <button class="modal-close" @onclick="Close" aria-label="Close modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            @if (ShowFooter)
+            {
+                <div class="modal-footer">
+                    @FooterContent
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+    [Parameter] public bool ShowFooter { get; set; } = true;
+    [Parameter] public bool CloseOnBackdropClick { get; set; } = true;
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private void Close()
+    {
+        IsVisible = false;
+        OnClose.InvokeAsync();
+    }
+
+    private void HandleBackdropClick()
+    {
+        if (CloseOnBackdropClick)
+        {
+            Close();
+        }
+    }
+
+    private void HandleKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape" && IsVisible)
+        {
+            Close();
+        }
+    }
+}
+
+<style>
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal-container {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease-out;
+        position: relative;
+    }
+
+    @@keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-xl);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+    }
+
+    .modal-close {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-size: var(--font-size-3xl);
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-md);
+        transition: all var(--transition-base);
+        line-height: 1;
+    }
+
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: var(--spacing-xl);
+    }
+
+    .modal-footer {
+        padding: var(--spacing-xl);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--spacing-md);
+    }
+
+    @@media (max-width: 768px) {
+        .modal-container {
+            width: 95%;
+            max-height: 95vh;
+        }
+
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            padding: var(--spacing-lg);
+        }
+    }
+</style>
+

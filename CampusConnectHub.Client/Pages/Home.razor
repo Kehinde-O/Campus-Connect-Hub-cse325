@@ -1,4 +1,13 @@
-﻿@page "/"
+﻿@* 
+    Home/News Feed Page
+    Displays paginated campus news posts in a modern card-based layout.
+    Features:
+    - Pagination for large news lists
+    - Responsive grid layout
+    - Loading states
+    - Empty state handling
+*@
+@page "/"
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
 @inject ApiService ApiService
@@ -11,6 +20,10 @@
         <h1>Campus News Feed</h1>
         <p class="subtitle">Stay updated with the latest campus announcements</p>
     </div>
+
+    <SearchBar Placeholder="Search news posts..." 
+               OnSearch="HandleSearch" 
+               OnClear="HandleClearSearch" />
 
     @if (isLoading)
     {
@@ -76,23 +89,34 @@
 </div>
 
 @code {
+    // Component state
     private PagedResponse<NewsPostDto> newsPosts = new();
     private bool isLoading = true;
+    private string? currentSearch = null;
 
+    /// <summary>
+    /// Initializes the component by loading the first page of news posts.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await LoadNews();
     }
 
+    /// <summary>
+    /// Loads news posts from the API with pagination support.
+    /// </summary>
+    /// <param name="pageNumber">The page number to load (default: 1)</param>
     private async Task LoadNews(int pageNumber = 1)
     {
         isLoading = true;
         try
         {
-            newsPosts = await ApiService.GetNewsAsync(pageNumber, 10);
+            // Fetch paginated news posts (10 per page)
+            newsPosts = await ApiService.GetNewsAsync(pageNumber, 10, currentSearch);
         }
         catch
         {
+            // On error, initialize empty response to prevent UI crashes
             newsPosts = new PagedResponse<NewsPostDto>();
         }
         finally
@@ -101,6 +125,22 @@
         }
     }
 
+    private async Task HandleSearch(string searchText)
+    {
+        currentSearch = searchText;
+        await LoadNews(1);
+    }
+
+    private async Task HandleClearSearch()
+    {
+        currentSearch = null;
+        await LoadNews(1);
+    }
+
+    /// <summary>
+    /// Handles page navigation in the pagination controls.
+    /// </summary>
+    /// <param name="pageNumber">The target page number</param>
     private async Task LoadPage(int pageNumber)
     {
         await LoadNews(pageNumber);

@@ -1,0 +1,348 @@
+@using CampusConnectHub.Client.Services
+@using CampusConnectHub.Shared.DTOs
+@inject ApiService ApiService
+
+<div class="analytics-container">
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner-large"></div>
+            <p class="loading-text">Loading analytics...</p>
+        </div>
+    }
+    else if (analytics != null)
+    {
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <h3>User Growth</h3>
+                <div class="stat-large">@analytics.TotalUsers</div>
+                <div class="stat-subtitle">@analytics.NewUsersThisMonth new this month</div>
+            </div>
+            <div class="analytics-card">
+                <h3>Content</h3>
+                <div class="stat-large">@analytics.PublishedNewsPosts / @analytics.TotalNewsPosts</div>
+                <div class="stat-subtitle">Published / Total News Posts</div>
+            </div>
+            <div class="analytics-card">
+                <h3>Events</h3>
+                <div class="stat-large">@analytics.UpcomingEvents / @analytics.TotalEvents</div>
+                <div class="stat-subtitle">Upcoming / Total Events</div>
+            </div>
+            <div class="analytics-card">
+                <h3>Engagement</h3>
+                <div class="stat-large">@analytics.TotalRSVPs</div>
+                <div class="stat-subtitle">@analytics.AverageRSVPsPerEvent avg per event</div>
+            </div>
+        </div>
+
+        <div class="trends-section">
+            <h2>Trends (Last 6 Months)</h2>
+            <div class="trends-grid">
+                <div class="trend-card">
+                    <h3>User Growth</h3>
+                    <div class="trend-bars">
+                        @foreach (var trend in analytics.UserGrowthTrend)
+                        {
+                            <div class="trend-item">
+                                <div class="trend-label">@trend.Month</div>
+                                <div class="trend-bar-container">
+                                    <div class="trend-bar" style="width: @(GetPercentage(trend.Count, analytics.UserGrowthTrend.Max(t => t.Count)))%"></div>
+                                    <span class="trend-value">@trend.Count</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="trend-card">
+                    <h3>Events Created</h3>
+                    <div class="trend-bars">
+                        @foreach (var trend in analytics.EventTrend)
+                        {
+                            <div class="trend-item">
+                                <div class="trend-label">@trend.Month</div>
+                                <div class="trend-bar-container">
+                                    <div class="trend-bar" style="width: @(GetPercentage(trend.Count, analytics.EventTrend.Max(t => t.Count)))%"></div>
+                                    <span class="trend-value">@trend.Count</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="trend-card">
+                    <h3>RSVPs</h3>
+                    <div class="trend-bars">
+                        @foreach (var trend in analytics.RSVPTrend)
+                        {
+                            <div class="trend-item">
+                                <div class="trend-label">@trend.Month</div>
+                                <div class="trend-bar-container">
+                                    <div class="trend-bar" style="width: @(GetPercentage(trend.Count, analytics.RSVPTrend.Max(t => t.Count)))%"></div>
+                                    <span class="trend-value">@trend.Count</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (analytics.MostPopularEvents.Any())
+        {
+            <div class="popular-events-section">
+                <h2>Most Popular Events</h2>
+                <div class="popular-events-list">
+                    @foreach (var eventItem in analytics.MostPopularEvents)
+                    {
+                        <div class="popular-event-card">
+                            <div class="event-title">@eventItem.EventTitle</div>
+                            <div class="event-details">
+                                <span>📅 @eventItem.EventDate.ToString("MMM dd, yyyy")</span>
+                                <span class="rsvp-count">✅ @eventItem.RSVPCount RSVPs</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private AnalyticsDto? analytics;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnalytics();
+    }
+
+    private async Task LoadAnalytics()
+    {
+        isLoading = true;
+        try
+        {
+            analytics = await ApiService.GetAnalyticsAsync();
+        }
+        catch
+        {
+            analytics = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private double GetPercentage(int value, int max)
+    {
+        if (max == 0) return 0;
+        return (value / (double)max) * 100;
+    }
+}
+
+<style>
+    .analytics-container {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xl);
+    }
+
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+    }
+
+    .analytics-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-xl);
+        text-align: center;
+    }
+
+    .analytics-card h3 {
+        margin: 0 0 var(--spacing-md) 0;
+        color: var(--text-secondary);
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-large {
+        font-size: var(--font-size-4xl);
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .stat-subtitle {
+        color: var(--text-secondary);
+        font-size: var(--font-size-sm);
+    }
+
+    .trends-section {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .trends-section h2 {
+        margin: 0 0 var(--spacing-lg) 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+    }
+
+    .trends-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--spacing-lg);
+    }
+
+    .trend-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+    }
+
+    .trend-card h3 {
+        margin: 0 0 var(--spacing-md) 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-lg);
+        font-weight: 700;
+    }
+
+    .trend-bars {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .trend-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .trend-label {
+        font-size: var(--font-size-xs);
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .trend-bar-container {
+        position: relative;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+    }
+
+    .trend-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        transition: width 0.3s ease;
+    }
+
+    .trend-value {
+        position: absolute;
+        right: var(--spacing-sm);
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .popular-events-section {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .popular-events-section h2 {
+        margin: 0 0 var(--spacing-lg) 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+    }
+
+    .popular-events-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .popular-event-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .event-title {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: var(--font-size-lg);
+    }
+
+    .event-details {
+        display: flex;
+        gap: var(--spacing-lg);
+        color: var(--text-secondary);
+        font-size: var(--font-size-sm);
+    }
+
+    .rsvp-count {
+        color: var(--success-color);
+        font-weight: 700;
+    }
+
+    .loading-container {
+        text-align: center;
+        padding: var(--spacing-2xl);
+    }
+
+    .loading-spinner-large {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto var(--spacing-md);
+    }
+
+    .loading-text {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    @@media (max-width: 768px) {
+        .analytics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .trends-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .popular-event-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-sm);
+        }
+    }
+</style>
+

@@ -53,6 +53,22 @@ The application is deployed and accessible at:
 
 This is the live production instance hosted on Azure App Service in the Canada Central region.
 
+### Default Login Credentials
+
+The application includes pre-seeded accounts for testing and demonstration:
+
+**Administrator Account:**
+- **Email**: `admin@campus.edu`
+- **Password**: `Admin123!`
+- **Role**: Administrator (full access to all features including admin dashboard)
+
+**Student Account:**
+- **Email**: `student@campus.edu`
+- **Password**: `Student123!`
+- **Role**: Student (can view content, RSVP to events, access resources)
+
+These accounts are automatically created when the database is first initialized. Use these credentials to test different user roles and functionality.
+
 ### High-Level Architecture
 
 ```mermaid
@@ -1135,6 +1151,18 @@ The middleware pipeline order (in `Program.cs`):
 
 ## User Guides
 
+### Default Test Accounts
+
+For quick access to test the application, use these pre-configured accounts:
+
+**Administrator:**
+- Email: `admin@campus.edu`
+- Password: `Admin123!`
+
+**Student:**
+- Email: `student@campus.edu`
+- Password: `Student123!`
+
 ### Student User Guide
 
 #### Registration and Login
@@ -1148,6 +1176,7 @@ The middleware pipeline order (in `Program.cs`):
 2. **Login**:
    - Navigate to the Login page
    - Enter your email and password
+   - Or use the test student account: `student@campus.edu` / `Student123!`
    - Click "Login"
    - You will be redirected to the home page
 
@@ -1192,6 +1221,7 @@ The middleware pipeline order (in `Program.cs`):
 #### Admin Dashboard Overview
 
 1. Navigate to the Admin page (visible only to administrators)
+   - Login with: `admin@campus.edu` / `Admin123!`
 2. View dashboard statistics:
    - Total news posts
    - Published news posts

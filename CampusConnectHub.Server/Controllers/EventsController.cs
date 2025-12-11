@@ -21,7 +21,12 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<EventDto>>> GetEvents([FromQuery] bool upcomingOnly = true)
+    public async Task<ActionResult<List<EventDto>>> GetEvents(
+        [FromQuery] bool upcomingOnly = true,
+        [FromQuery] string? search = null,
+        [FromQuery] string? location = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         int? userId = userIdClaim != null ? int.Parse(userIdClaim) : null;
@@ -34,6 +39,30 @@ public class EventsController : ControllerBase
         if (upcomingOnly)
         {
             query = query.Where(e => e.EventDate >= DateTime.UtcNow);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchLower = search.ToLower();
+            query = query.Where(e => 
+                e.Title.ToLower().Contains(searchLower) || 
+                e.Description.ToLower().Contains(searchLower));
+        }
+
+        if (!string.IsNullOrWhiteSpace(location))
+        {
+            var locationLower = location.ToLower();
+            query = query.Where(e => e.Location.ToLower().Contains(locationLower));
+        }
+
+        if (startDate.HasValue)
+        {
+            query = query.Where(e => e.EventDate >= startDate.Value);
+        }
+
+        if (endDate.HasValue)
+        {
+            query = query.Where(e => e.EventDate <= endDate.Value);
         }
 
         var events = await query
@@ -160,6 +189,72 @@ public class EventsController : ControllerBase
         _context.Events.Remove(eventEntity);
         await _context.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpGet("{id}/attendees")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<ActionResult<List<EventAttendeeDto>>> GetEventAttendees(int id)
+    {
+        var eventEntity = await _context.Events
+            .Include(e => e.RSVPs)
+            .ThenInclude(r => r.User)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (eventEntity == null)
+        {
+            return NotFound();
+        }
+
+        var attendees = eventEntity.RSVPs
+            .Where(r => r.Status == "Confirmed")
+            .Select(r => new EventAttendeeDto
+            {
+                RSVPId = r.Id,
+                UserId = r.UserId,
+                UserName = $"{r.User.FirstName} {r.User.LastName}",
+                UserEmail = r.User.Email,
+                RSVPDate = r.RSVPDate,
+                Status = r.Status
+            })
+            .OrderBy(a => a.RSVPDate)
+            .ToList();
+
+        return Ok(attendees);
+    }
+
+    [HttpGet("{id}/attendees/export")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> ExportEventAttendees(int id)
+    {
+        var eventEntity = await _context.Events
+            .Include(e => e.RSVPs)
+            .ThenInclude(r => r.User)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (eventEntity == null)
+        {
+            return NotFound();
+        }
+
+        var attendees = eventEntity.RSVPs
+            .Where(r => r.Status == "Confirmed")
+            .Select(r => new
+            {
+                Name = $"{r.User.FirstName} {r.User.LastName}",
+                Email = r.User.Email,
+                RSVPDate = r.RSVPDate.ToString("yyyy-MM-dd HH:mm:ss")
+            })
+            .OrderBy(a => a.RSVPDate)
+            .ToList();
+
+        var csv = "Name,Email,RSVP Date\n";
+        foreach (var attendee in attendees)
+        {
+            csv += $"\"{attendee.Name}\",\"{attendee.Email}\",\"{attendee.RSVPDate}\"\n";
+        }
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
+        return File(bytes, "text/csv", $"event-{id}-attendees-{DateTime.UtcNow:yyyyMMdd}.csv");
     }
 }
 

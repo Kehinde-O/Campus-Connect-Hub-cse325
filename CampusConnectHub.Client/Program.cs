@@ -28,5 +28,7 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ApiService>();
+builder.Services.AddScoped<ErrorHandlingService>();
+builder.Services.AddSingleton<NotificationService>();
 
 await builder.Build().RunAsync();

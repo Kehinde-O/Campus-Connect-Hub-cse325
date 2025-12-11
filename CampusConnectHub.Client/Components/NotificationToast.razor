@@ -1,0 +1,210 @@
+@using CampusConnectHub.Client.Services
+@inject NotificationService NotificationService
+@implements IDisposable
+
+<div class="notification-container">
+    @foreach (var notification in notifications)
+    {
+        <div class="notification-toast @GetNotificationClass(notification.Type)" 
+             @key="notification.Id"
+             style="animation: slideIn 0.3s ease-out;">
+            <div class="notification-content">
+                <span class="notification-icon">@GetNotificationIcon(notification.Type)</span>
+                <span class="notification-message">@notification.Message</span>
+                <button class="notification-close" @onclick="() => RemoveNotification(notification.Id)">×</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<NotificationMessage> notifications = new();
+
+    protected override void OnInitialized()
+    {
+        NotificationService.OnNotification += HandleNotification;
+    }
+
+    private void HandleNotification(NotificationMessage notification)
+    {
+        notifications.Add(notification);
+        StateHasChanged();
+
+        if (notification.Duration > 0)
+        {
+            _ = Task.Delay(notification.Duration).ContinueWith(_ =>
+            {
+                InvokeAsync(() =>
+                {
+                    RemoveNotification(notification.Id);
+                    StateHasChanged();
+                });
+            });
+        }
+    }
+
+    private void RemoveNotification(Guid id)
+    {
+        notifications.RemoveAll(n => n.Id == id);
+        StateHasChanged();
+    }
+
+    private string GetNotificationClass(NotificationType type)
+    {
+        return type switch
+        {
+            NotificationType.Success => "notification-success",
+            NotificationType.Error => "notification-error",
+            NotificationType.Info => "notification-info",
+            NotificationType.Warning => "notification-warning",
+            _ => ""
+        };
+    }
+
+    private string GetNotificationIcon(NotificationType type)
+    {
+        return type switch
+        {
+            NotificationType.Success => "✓",
+            NotificationType.Error => "✕",
+            NotificationType.Info => "ℹ",
+            NotificationType.Warning => "⚠",
+            _ => ""
+        };
+    }
+
+    public void Dispose()
+    {
+        NotificationService.OnNotification -= HandleNotification;
+    }
+}
+
+<style>
+    .notification-container {
+        position: fixed;
+        top: var(--spacing-lg);
+        right: var(--spacing-lg);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        max-width: 400px;
+        pointer-events: none;
+    }
+
+    .notification-toast {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-md) var(--spacing-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        pointer-events: all;
+        animation: slideIn 0.3s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .notification-toast::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+    }
+
+    .notification-success::before {
+        background: var(--success-color);
+    }
+
+    .notification-error::before {
+        background: var(--error-color);
+    }
+
+    .notification-info::before {
+        background: var(--info-color);
+    }
+
+    .notification-warning::before {
+        background: var(--warning-color);
+    }
+
+    .notification-content {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .notification-icon {
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .notification-success .notification-icon {
+        color: var(--success-color);
+    }
+
+    .notification-error .notification-icon {
+        color: var(--error-color);
+    }
+
+    .notification-info .notification-icon {
+        color: var(--info-color);
+    }
+
+    .notification-warning .notification-icon {
+        color: var(--warning-color);
+    }
+
+    .notification-message {
+        flex: 1;
+        color: var(--text-primary);
+        font-size: var(--font-size-base);
+        font-weight: 500;
+    }
+
+    .notification-close {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-size: var(--font-size-xl);
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-base);
+        flex-shrink: 0;
+        line-height: 1;
+    }
+
+    .notification-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+
+    @@keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .notification-container {
+            left: var(--spacing-md);
+            right: var(--spacing-md);
+            max-width: none;
+        }
+    }
+</style>
+
