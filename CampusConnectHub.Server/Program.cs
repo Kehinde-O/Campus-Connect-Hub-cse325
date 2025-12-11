@@ -15,19 +15,27 @@ builder.Services.AddSwaggerGen();
 // This ensures no CORS errors regardless of where requests come from
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    // Default policy - Allow everything
+    options.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyOrigin()      // Allow requests from any origin
-              .AllowAnyHeader()      // Allow any HTTP headers
-              .AllowAnyMethod();     // Allow any HTTP methods (GET, POST, PUT, DELETE, etc.)
+              .AllowAnyHeader()      // Allow any HTTP headers (including Authorization, Content-Type, etc.)
+              .AllowAnyMethod();     // Allow any HTTP methods (GET, POST, PUT, DELETE, OPTIONS, etc.)
     });
     
-    // Also add a policy with credentials for development if needed
+    // Named policy for explicit use
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+    
+    // Policy with credentials for development
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         if (builder.Environment.IsDevelopment())
         {
-            // In development, allow localhost origins with credentials
             policy.WithOrigins("https://localhost:5001", "http://localhost:5121", "https://localhost:7126", "http://localhost:5121")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
@@ -35,7 +43,6 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            // In production, use AllowAll policy (no credentials needed for same-origin)
             policy.AllowAnyOrigin()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
@@ -85,11 +92,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Use CORS FIRST - before any other middleware
+// This ensures preflight OPTIONS requests are handled correctly
+app.UseCors();
 
-// Use CORS - AllowAll policy to prevent any CORS errors
-// MUST be before other middleware to handle preflight OPTIONS requests
-app.UseCors("AllowAll");
+app.UseHttpsRedirection();
 
 // Serve static files from wwwroot (for Blazor WebAssembly frontend)
 // MUST be before authentication/authorization to allow access to static files

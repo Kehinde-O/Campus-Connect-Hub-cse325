@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
@@ -10,6 +11,7 @@ namespace CampusConnectHub.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableCors] // Enable CORS for all actions in this controller
 public class AuthController : ControllerBase
 {
     private readonly ApplicationDbContext _context;

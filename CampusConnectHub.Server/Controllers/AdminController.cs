@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CampusConnectHub.Infrastructure.Data;
@@ -8,6 +9,7 @@ namespace CampusConnectHub.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableCors] // Enable CORS for all actions
 [Authorize(Roles = "Administrator")]
 public class AdminController : ControllerBase
 {

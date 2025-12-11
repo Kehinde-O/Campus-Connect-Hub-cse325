@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -9,6 +10,7 @@ namespace CampusConnectHub.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableCors] // Enable CORS for all actions
 public class EventsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
