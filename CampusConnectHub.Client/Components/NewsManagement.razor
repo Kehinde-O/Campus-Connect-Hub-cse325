@@ -17,8 +17,8 @@
                         <div class="card-title-section">
                             <h4>@post.Title</h4>
                             <div class="card-meta">
-                                <span class="meta-item">👤 @post.AuthorName</span>
-                                <span class="meta-item">📅 @post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                <span class="meta-item">Author: @post.AuthorName</span>
+                                <span class="meta-item">Date: @post.CreatedAt.ToString("MMM dd, yyyy")</span>
                             </div>
                         </div>
                     </div>
@@ -27,10 +27,10 @@
                     </div>
                     <div class="card-actions">
                         <button class="btn-action btn-edit" @onclick="() => EditPost(post)" title="Edit">
-                            <span>✏️</span> Edit
+                            <span>Edit</span>
                         </button>
                         <button class="btn-action btn-delete" @onclick="() => DeletePost(post.Id)" title="Delete">
-                            <span>🗑️</span> Delete
+                            <span>Delete</span>
                         </button>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
     else
     {
         <div class="empty-state">
-            <div class="empty-icon">📰</div>
+            <div class="empty-icon">News</div>
             <p>No news posts found</p>
         </div>
     }
@@ -223,7 +223,7 @@
         margin: 0;
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .management-grid {
             grid-template-columns: 1fr;
         }

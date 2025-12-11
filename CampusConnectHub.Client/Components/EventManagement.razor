@@ -17,17 +17,17 @@
                         <div class="card-title-section">
                             <h4>@eventItem.Title</h4>
                             <div class="card-meta">
-                                <span class="meta-item">📍 @eventItem.Location</span>
-                                <span class="meta-item">🕐 @eventItem.EventDate.ToString("h:mm tt")</span>
+                                <span class="meta-item">Location: @eventItem.Location</span>
+                                <span class="meta-item">Time: @eventItem.EventDate.ToString("h:mm tt")</span>
                             </div>
                         </div>
                     </div>
                     <div class="card-actions">
                         <button class="btn-action btn-edit" @onclick="() => EditEvent(eventItem)" title="Edit">
-                            <span>✏️</span> Edit
+                            <span>Edit</span>
                         </button>
                         <button class="btn-action btn-delete" @onclick="() => DeleteEvent(eventItem.Id)" title="Delete">
-                            <span>🗑️</span> Delete
+                            <span>Delete</span>
                         </button>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
     else
     {
         <div class="empty-state">
-            <div class="empty-icon">📅</div>
+            <div class="empty-icon">Calendar</div>
             <p>No events found</p>
         </div>
     }
@@ -209,7 +209,7 @@
         margin: 0;
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .management-grid {
             grid-template-columns: 1fr;
         }

@@ -23,15 +23,15 @@
                     <div class="card-content">
                         <p>@resource.Description</p>
                         <a href="@resource.Url" target="_blank" class="resource-link" rel="noopener noreferrer">
-                            🔗 @resource.Url
+                            Link: @resource.Url
                         </a>
                     </div>
                     <div class="card-actions">
                         <button class="btn-action btn-edit" @onclick="() => EditResource(resource)" title="Edit">
-                            <span>✏️</span> Edit
+                            <span>Edit</span>
                         </button>
                         <button class="btn-action btn-delete" @onclick="() => DeleteResource(resource.Id)" title="Delete">
-                            <span>🗑️</span> Delete
+                            <span>Delete</span>
                         </button>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
     else
     {
         <div class="empty-state">
-            <div class="empty-icon">📚</div>
+            <div class="empty-icon">Resources</div>
             <p>No resources found</p>
         </div>
     }
@@ -75,16 +75,16 @@
     {
         return category?.ToLower() switch
         {
-            "academic" => "📖",
-            "library" => "📚",
-            "student services" => "🎓",
-            "health" => "🏥",
-            "dining" => "🍽️",
-            "housing" => "🏠",
-            "technology" => "💻",
-            "sports" => "⚽",
-            "counseling" => "💬",
-            _ => "🔗"
+            "academic" => "Academic",
+            "library" => "Library",
+            "student services" => "Services",
+            "health" => "Health",
+            "dining" => "Dining",
+            "housing" => "Housing",
+            "technology" => "Tech",
+            "sports" => "Sports",
+            "counseling" => "Support",
+            _ => "Link"
         };
     }
 }
@@ -247,7 +247,7 @@
         margin: 0;
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .management-grid {
             grid-template-columns: 1fr;
         }

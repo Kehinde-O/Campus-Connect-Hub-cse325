@@ -14,7 +14,7 @@
         @if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="alert alert-danger">
-                <span class="alert-icon">⚠️</span>
+                <span class="alert-icon">!</span>
                 <span>@errorMessage</span>
             </div>
         }
@@ -59,7 +59,6 @@
                 }
                 else
                 {
-                    <span>✨</span>
                     <span>Create Account</span>
                 }
             </button>
@@ -136,7 +135,7 @@
         animation: slideUp 0.4s ease-out;
     }
 
-    @keyframes slideUp {
+    @@keyframes slideUp {
         from {
             opacity: 0;
             transform: translateY(20px);
@@ -273,7 +272,7 @@
         animation: shake 0.4s ease;
     }
 
-    @keyframes shake {
+    @@keyframes shake {
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-5px); }
         75% { transform: translateX(5px); }
@@ -289,7 +288,7 @@
         font-size: var(--font-size-lg);
     }
 
-    @media (max-width: 640px) {
+    @@media (max-width: 640px) {
         .auth-container {
             padding: var(--spacing-md);
         }

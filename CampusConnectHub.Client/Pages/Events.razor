@@ -34,29 +34,29 @@
                         <h3>@eventItem.Title</h3>
                         <div class="event-meta">
                             <div class="meta-item">
-                                <span class="meta-icon">📍</span>
+                                <span class="meta-icon">Location:</span>
                                 <span>@eventItem.Location</span>
                             </div>
                             <div class="meta-item">
-                                <span class="meta-icon">🕐</span>
+                                <span class="meta-icon">Time:</span>
                                 <span>@eventItem.EventDate.ToString("h:mm tt")</span>
                             </div>
                         </div>
                         <p class="event-description">@eventItem.Description</p>
                         <div class="event-footer">
                             <div class="event-attendees">
-                                <span class="attendees-icon">👥</span>
+                                <span class="attendees-icon">Attendees:</span>
                                 <span class="attendees-count">
                                     @eventItem.CurrentAttendees@(eventItem.MaxAttendees.HasValue ? $"/{eventItem.MaxAttendees}" : "")
                                 </span>
                                 <span class="attendees-label">attending</span>
                             </div>
-                            @if (await AuthService.IsAuthenticatedAsync())
+                            @if (isAuthenticated)
                             {
                                 @if (eventItem.IsUserRSVPed)
                                 {
                                     <button class="btn-rsvp btn-rsvp-cancelled" @onclick="() => CancelRSVP(eventItem.Id)">
-                                        <span>✓</span> Cancel RSVP
+                                        <span>Cancel RSVP</span>
                                     </button>
                                 }
                                 else
@@ -69,7 +69,7 @@
                                         }
                                         else
                                         {
-                                            <span>+</span> RSVP
+                                            <span>+</span> <text>RSVP</text>
                                         }
                                     </button>
                                 }
@@ -83,7 +83,7 @@
     else
     {
         <div class="empty-state">
-            <div class="empty-icon">📅</div>
+            <div class="empty-icon">Calendar</div>
             <h3>No upcoming events</h3>
             <p>Check back later for exciting campus events!</p>
         </div>
@@ -93,9 +93,11 @@
 @code {
     private List<EventDto> events = new();
     private bool isLoading = true;
+    private bool isAuthenticated = false;
 
     protected override async Task OnInitializedAsync()
     {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
         await LoadEvents();
     }
 
@@ -417,7 +419,7 @@
         font-size: var(--font-size-base);
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .events-grid {
             grid-template-columns: 1fr;
             gap: var(--spacing-lg);

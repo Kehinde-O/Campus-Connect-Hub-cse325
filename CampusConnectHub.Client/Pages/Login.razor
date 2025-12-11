@@ -1,6 +1,7 @@
 @page "/login"
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
+@using System.Net.Http
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
@@ -15,7 +16,7 @@
         @if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="alert alert-danger">
-                <span class="alert-icon">⚠️</span>
+                <span class="alert-icon">!</span>
                 <span>@errorMessage</span>
             </div>
         }
@@ -44,7 +45,6 @@
                 }
                 else
                 {
-                    <span>🔐</span>
                     <span>Sign In</span>
                 }
             </button>
@@ -87,9 +87,24 @@
                 errorMessage = "Invalid email or password";
             }
         }
+        catch (HttpRequestException ex)
+        {
+            if (ex.Message.Contains("401") || ex.Message.Contains("Unauthorized"))
+            {
+                errorMessage = "Invalid email or password. Please try again.";
+            }
+            else if (ex.Message.Contains("Failed to fetch") || ex.Message.Contains("NetworkError"))
+            {
+                errorMessage = "Unable to connect to the server. Please check your connection and ensure the API is running.";
+            }
+            else
+            {
+                errorMessage = ex.Message.Replace("Login failed: ", "");
+            }
+        }
         catch (Exception ex)
         {
-            errorMessage = "An error occurred. Please try again.";
+            errorMessage = $"An error occurred: {ex.Message}";
         }
         finally
         {
@@ -121,7 +136,7 @@
         animation: slideUp 0.4s ease-out;
     }
 
-    @keyframes slideUp {
+    @@keyframes slideUp {
         from {
             opacity: 0;
             transform: translateY(20px);
@@ -251,7 +266,7 @@
         animation: shake 0.4s ease;
     }
 
-    @keyframes shake {
+    @@keyframes shake {
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-5px); }
         75% { transform: translateX(5px); }
@@ -267,7 +282,7 @@
         font-size: var(--font-size-lg);
     }
 
-    @media (max-width: 640px) {
+    @@media (max-width: 640px) {
         .auth-container {
             padding: var(--spacing-md);
         }

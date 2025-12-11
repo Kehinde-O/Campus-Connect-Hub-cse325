@@ -33,7 +33,7 @@
                         <div class="news-header-content">
                             <h3>@post.Title</h3>
                             <div class="news-author">
-                                <span class="author-icon">👤</span>
+                                <span class="author-icon">By:</span>
                                 @post.AuthorName
                             </div>
                         </div>
@@ -68,7 +68,7 @@
     else
     {
         <div class="empty-state">
-            <div class="empty-icon">📰</div>
+            <div class="empty-icon">News</div>
             <h3>No news posts available</h3>
             <p>Check back later for the latest campus updates!</p>
         </div>
@@ -355,7 +355,7 @@
         font-size: var(--font-size-base);
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .news-grid {
             grid-template-columns: 1fr;
             gap: var(--spacing-lg);

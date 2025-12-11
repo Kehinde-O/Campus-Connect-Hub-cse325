@@ -26,42 +26,42 @@ else
         {
             <div class="dashboard-stats">
                 <div class="stat-card stat-card-primary">
-                    <div class="stat-icon">📰</div>
+                    <div class="stat-icon">News</div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalNewsPosts</div>
                         <div class="stat-label">Total News Posts</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-success">
-                    <div class="stat-icon">✅</div>
+                    <div class="stat-icon">Published</div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.PublishedNewsPosts</div>
                         <div class="stat-label">Published Posts</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-info">
-                    <div class="stat-icon">📅</div>
+                    <div class="stat-icon">Events</div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalEvents</div>
                         <div class="stat-label">Total Events</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-warning">
-                    <div class="stat-icon">⏰</div>
+                    <div class="stat-icon">Upcoming</div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.UpcomingEvents</div>
                         <div class="stat-label">Upcoming Events</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-secondary">
-                    <div class="stat-icon">👥</div>
+                    <div class="stat-icon">RSVPs</div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalRSVPs</div>
                         <div class="stat-label">Total RSVPs</div>
                     </div>
                 </div>
                 <div class="stat-card stat-card-accent">
-                    <div class="stat-icon">👤</div>
+                    <div class="stat-icon">Users</div>
                     <div class="stat-content">
                         <div class="stat-value">@dashboard?.TotalUsers</div>
                         <div class="stat-label">Total Users</div>
@@ -73,7 +73,7 @@ else
                 <div class="admin-section">
                     <div class="section-header">
                         <h2>
-                            <span class="section-icon">📰</span>
+                            <span class="section-icon">News</span>
                             News Management
                         </h2>
                         <button class="btn-primary" @onclick="() => showNewsModal = true">
@@ -86,7 +86,7 @@ else
                 <div class="admin-section">
                     <div class="section-header">
                         <h2>
-                            <span class="section-icon">📅</span>
+                            <span class="section-icon">Events</span>
                             Event Management
                         </h2>
                         <button class="btn-primary" @onclick="() => showEventModal = true">
@@ -99,7 +99,7 @@ else
                 <div class="admin-section">
                     <div class="section-header">
                         <h2>
-                            <span class="section-icon">📚</span>
+                            <span class="section-icon">Resources</span>
                             Resource Management
                         </h2>
                         <button class="btn-primary" @onclick="() => showResourceModal = true">
@@ -372,7 +372,7 @@ else
         box-shadow: var(--shadow-md);
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .admin-container {
             padding: var(--spacing-md);
         }

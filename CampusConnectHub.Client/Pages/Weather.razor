@@ -27,7 +27,7 @@
                         <div class="date-number">@forecast.Date.Day</div>
                         <div class="date-month">@forecast.Date.ToString("MMM")</div>
                     </div>
-                    <div class="weather-icon">@GetWeatherIcon(forecast.Summary)</div>
+                    <div class="weather-icon-text">@GetWeatherIcon(forecast.Summary)</div>
                     <div class="weather-temp">
                         <div class="temp-celsius">@forecast.TemperatureC°C</div>
                         <div class="temp-fahrenheit">@forecast.TemperatureF°F</div>
@@ -50,18 +50,18 @@
     private string GetWeatherIcon(string? summary)
     {
         if (string.IsNullOrEmpty(summary))
-            return "☀️";
+            return "Sunny";
 
         return summary.ToLower() switch
         {
-            var s when s.Contains("sunny") || s.Contains("clear") => "☀️",
-            var s when s.Contains("cloud") => "☁️",
-            var s when s.Contains("rain") => "🌧️",
-            var s when s.Contains("snow") => "❄️",
-            var s when s.Contains("wind") => "💨",
-            var s when s.Contains("fog") || s.Contains("mist") => "🌫️",
-            var s when s.Contains("storm") || s.Contains("thunder") => "⛈️",
-            _ => "🌤️"
+            var s when s.Contains("sunny") || s.Contains("clear") => "Sunny",
+            var s when s.Contains("cloud") => "Cloudy",
+            var s when s.Contains("rain") => "Rainy",
+            var s when s.Contains("snow") => "Snowy",
+            var s when s.Contains("wind") => "Windy",
+            var s when s.Contains("fog") || s.Contains("mist") => "Foggy",
+            var s when s.Contains("storm") || s.Contains("thunder") => "Stormy",
+            _ => "Partly Cloudy"
         };
     }
 
@@ -163,8 +163,15 @@
         text-transform: uppercase;
     }
 
-    .weather-icon {
-        font-size: 4rem;
+    .weather-icon-text {
+        font-size: var(--font-size-lg);
+        font-weight: 700;
+        color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: var(--spacing-sm) var(--spacing-md);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: var(--radius-md);
         line-height: 1;
     }
 
@@ -218,7 +225,7 @@
         font-weight: 500;
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .weather-container {
             padding: var(--spacing-md);
         }

@@ -16,17 +16,35 @@ public class AuthService
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/auth/login", request);
-        
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
-            if (authResponse != null)
+            var response = await _httpClient.PostAsJsonAsync("api/auth/login", request);
+            
+            if (response.IsSuccessStatusCode)
             {
-                await _localStorage.SetItemAsync("authToken", authResponse.Token);
-                await _localStorage.SetItemAsync("user", authResponse.User);
-                return authResponse;
+                var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
+                if (authResponse != null)
+                {
+                    await _localStorage.SetItemAsync("authToken", authResponse.Token);
+                    await _localStorage.SetItemAsync("user", authResponse.User);
+                    return authResponse;
+                }
             }
+            else
+            {
+                // Try to read error message from response
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Login failed: {response.StatusCode}");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            // Re-throw to be caught by the UI
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while connecting to the server. Please check your connection and try again.", ex);
         }
         
         return null;

@@ -42,7 +42,7 @@
     else
     {
         <div class="empty-state">
-            <div class="empty-icon">📚</div>
+            <div class="empty-icon">Resources</div>
             <h3>No resources available</h3>
             <p>Resources will appear here when they're added!</p>
         </div>
@@ -79,16 +79,16 @@
     {
         return category?.ToLower() switch
         {
-            "academic" => "📖",
-            "library" => "📚",
-            "student services" => "🎓",
-            "health" => "🏥",
-            "dining" => "🍽️",
-            "housing" => "🏠",
-            "technology" => "💻",
-            "sports" => "⚽",
-            "counseling" => "💬",
-            _ => "🔗"
+            "academic" => "Academic",
+            "library" => "Library",
+            "student services" => "Services",
+            "health" => "Health",
+            "dining" => "Dining",
+            "housing" => "Housing",
+            "technology" => "Tech",
+            "sports" => "Sports",
+            "counseling" => "Support",
+            _ => "Link"
         };
     }
 }
@@ -179,7 +179,8 @@
     }
 
     .resource-icon {
-        font-size: 4rem;
+        font-size: var(--font-size-sm);
+        font-weight: 700;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -188,6 +189,9 @@
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
         border-radius: var(--radius-full);
         transition: transform var(--transition-base);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-primary);
     }
 
     .resource-card:hover .resource-icon {
@@ -292,7 +296,7 @@
         font-size: var(--font-size-base);
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .resources-grid {
             grid-template-columns: 1fr;
             gap: var(--spacing-lg);
