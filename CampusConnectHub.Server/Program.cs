@@ -11,24 +11,31 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure CORS for Blazor WebAssembly
-// For Option 2 (Single App Service), CORS is simplified since frontend and backend are on same domain
+// Configure CORS - Allow all origins, headers, and methods
+// This ensures no CORS errors regardless of where requests come from
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()      // Allow requests from any origin
+              .AllowAnyHeader()      // Allow any HTTP headers
+              .AllowAnyMethod();     // Allow any HTTP methods (GET, POST, PUT, DELETE, etc.)
+    });
+    
+    // Also add a policy with credentials for development if needed
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         if (builder.Environment.IsDevelopment())
         {
-            // In development, allow localhost origins
-            policy.WithOrigins("https://localhost:5001", "http://localhost:5121", "https://localhost:7126")
+            // In development, allow localhost origins with credentials
+            policy.WithOrigins("https://localhost:5001", "http://localhost:5121", "https://localhost:7126", "http://localhost:5121")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
         }
         else
         {
-            // In production with single App Service, same origin - CORS not strictly needed
-            // But keeping it for flexibility
+            // In production, use AllowAll policy (no credentials needed for same-origin)
             policy.AllowAnyOrigin()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
@@ -79,7 +86,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowBlazorClient");
+
+// Use CORS - AllowAll policy to prevent any CORS errors
+// MUST be before other middleware to handle preflight OPTIONS requests
+app.UseCors("AllowAll");
 
 // Serve static files from wwwroot (for Blazor WebAssembly frontend)
 // MUST be before authentication/authorization to allow access to static files
