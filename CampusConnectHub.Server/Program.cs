@@ -12,51 +12,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure CORS for Blazor WebAssembly
+// For Option 2 (Single App Service), CORS is simplified since frontend and backend are on same domain
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
-        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-        
-        if (allowedOrigins == null || allowedOrigins.Length == 0)
+        if (builder.Environment.IsDevelopment())
         {
-            if (builder.Environment.IsDevelopment())
-            {
-                // Default to localhost for development
-                allowedOrigins = new[] { "https://localhost:5001", "http://localhost:5121", "https://localhost:7126" };
-            }
-            else
-            {
-                // In production, get from environment variable or configuration
-                // Example: https://your-static-web-app.azurestaticapps.net
-                var staticWebAppUrl = builder.Configuration["StaticWebAppUrl"] 
-                    ?? Environment.GetEnvironmentVariable("STATIC_WEB_APP_URL");
-                
-                if (!string.IsNullOrEmpty(staticWebAppUrl))
-                {
-                    allowedOrigins = new[] { staticWebAppUrl };
-                }
-                else
-                {
-                    // Fallback - allow all origins in production (not recommended for production)
-                    // You should set StaticWebAppUrl in App Service configuration
-                    allowedOrigins = new[] { "*" };
-                }
-            }
-        }
-        
-        if (allowedOrigins.Contains("*"))
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        }
-        else
-        {
-            policy.WithOrigins(allowedOrigins)
+            // In development, allow localhost origins
+            policy.WithOrigins("https://localhost:5001", "http://localhost:5121", "https://localhost:7126")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
+        }
+        else
+        {
+            // In production with single App Service, same origin - CORS not strictly needed
+            // But keeping it for flexibility
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
         }
     });
 });
@@ -107,7 +82,16 @@ app.UseHttpsRedirection();
 app.UseCors("AllowBlazorClient");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Serve static files from wwwroot (for Blazor WebAssembly frontend)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// Map API controllers
 app.MapControllers();
+
+// Fallback to index.html for client-side routing (SPA)
+app.MapFallbackToFile("index.html");
 
 // Ensure database is created and seeded
 using (var scope = app.Services.CreateScope())

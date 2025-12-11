@@ -8,20 +8,10 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Configure HttpClient to point to the API
-// In development, the API runs on a different port
-// In production, use the Azure App Service URL from environment variable or configuration
+// Option 2: Single App Service - Frontend and Backend on same domain
 var apiBaseUrl = builder.HostEnvironment.IsDevelopment() 
-    ? "https://localhost:7126" 
-    : builder.Configuration["ApiBaseUrl"] ?? builder.HostEnvironment.BaseAddress;
-
-// If ApiBaseUrl is not configured, try to construct from BaseAddress
-if (!builder.HostEnvironment.IsDevelopment() && apiBaseUrl == builder.HostEnvironment.BaseAddress)
-{
-    // For Azure Static Web Apps, the API should be on a separate App Service
-    // This should be set via environment variable or Static Web App configuration
-    // Example: https://campus-connect-hub-api.azurewebsites.net
-    apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://campus-connect-hub-api.azurewebsites.net";
-}
+    ? "https://localhost:7126"  // Development: API on different port
+    : builder.HostEnvironment.BaseAddress; // Production: Same domain as frontend
 
 builder.Services.AddScoped(sp => new HttpClient 
 { 

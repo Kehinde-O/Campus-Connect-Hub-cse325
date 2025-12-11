@@ -1,5 +1,6 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
+# Option 2: Single App Service - Frontend and Backend on same domain
 
 name: Build and deploy ASP.Net Core app to Azure Web App - Campus-Connect-Hub
 
@@ -23,17 +24,30 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish Client (Blazor WebAssembly)
+        run: dotnet publish CampusConnectHub.Client/CampusConnectHub.Client.csproj -c Release -o ./client-publish --no-build
+
+      - name: Publish Server (API)
+        run: dotnet publish CampusConnectHub.Server/CampusConnectHub.Server.csproj -c Release -o ./server-publish --no-build
+
+      - name: Copy Client wwwroot to Server wwwroot
+        run: |
+          # Create wwwroot directory in server publish folder
+          New-Item -ItemType Directory -Force -Path ./server-publish/wwwroot
+          # Copy all files from client wwwroot to server wwwroot
+          Copy-Item -Path ./client-publish/wwwroot/* -Destination ./server-publish/wwwroot/ -Recurse -Force
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./server-publish
 
   deploy:
     runs-on: windows-latest
