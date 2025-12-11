@@ -1,7 +1,10 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
 @using System.ComponentModel.DataAnnotations
+@using System
 @inject ApiService ApiService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 
 <div class="management-list">
@@ -127,12 +130,33 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (!isAuthenticated)
+        {
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
+            return;
+        }
+
+        var user = await AuthService.GetUserAsync();
+        if (user?.Role != "Administrator")
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
         await LoadResources();
     }
 
     private async Task LoadResources()
     {
-        resources = await ApiService.GetAdminResourcesAsync();
+        try
+        {
+            resources = await ApiService.GetAdminResourcesAsync();
+        }
+        catch (Exception)
+        {
+            resources = new List<ResourceDto>();
+        }
     }
 
     private void EditResource(ResourceDto resource)
@@ -415,9 +439,9 @@
     .form-control {
         width: 100%;
         padding: var(--spacing-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid #d1d5db;
         border-radius: var(--radius-md);
-        background: rgba(255, 255, 255, 0.1);
+        background-color: #f9fafb;
         color: var(--text-primary);
         font-size: var(--font-size-base);
         font-family: inherit;
@@ -426,7 +450,7 @@
 
     .form-control:focus {
         border-color: var(--primary-color);
-        background: rgba(255, 255, 255, 0.15);
+        background-color: #ffffff;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 

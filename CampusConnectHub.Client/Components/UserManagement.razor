@@ -1,6 +1,9 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
+@using System
 @inject ApiService ApiService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 @inject NotificationService NotificationService
 @inject IJSRuntime JSRuntime
 
@@ -138,6 +141,20 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (!isAuthenticated)
+        {
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
+            return;
+        }
+
+        var user = await AuthService.GetUserAsync();
+        if (user?.Role != "Administrator")
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
         await LoadUsers();
     }
 
@@ -150,10 +167,13 @@
                 string.IsNullOrWhiteSpace(searchText) ? null : searchText,
                 string.IsNullOrWhiteSpace(roleFilter) ? null : roleFilter);
         }
-        catch
+        catch (Exception ex)
         {
             users = new PagedResponse<UserDto>();
-            NotificationService.ShowError("Failed to load users. Please try again.");
+            if (!ex.Message.Contains("Unauthorized") && !ex.Message.Contains("401"))
+            {
+                NotificationService.ShowError("Failed to load users. Please try again.");
+            }
         }
         finally
         {
@@ -260,18 +280,18 @@
         flex: 1;
         min-width: 200px;
         padding: var(--spacing-md);
-        border: 2px solid rgba(255, 255, 255, 0.4);
+        border: 2px solid #d1d5db;
         border-radius: var(--radius-md);
-        background: rgba(255, 255, 255, 0.1);
+        background-color: #f9fafb;
         color: var(--text-primary);
         font-size: var(--font-size-base);
     }
 
     .filter-select {
         padding: var(--spacing-md);
-        border: 2px solid rgba(255, 255, 255, 0.4);
+        border: 2px solid #d1d5db;
         border-radius: var(--radius-md);
-        background: rgba(255, 255, 255, 0.1);
+        background-color: #f9fafb;
         color: var(--text-primary);
         font-size: var(--font-size-base);
     }
@@ -419,9 +439,9 @@
 
     .role-select {
         padding: var(--spacing-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid #d1d5db;
         border-radius: var(--radius-md);
-        background: rgba(255, 255, 255, 0.1);
+        background-color: #f9fafb;
         color: var(--text-primary);
         font-size: var(--font-size-base);
     }

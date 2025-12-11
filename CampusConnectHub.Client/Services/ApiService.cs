@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CampusConnectHub.Client.Services;
 using CampusConnectHub.Shared.DTOs;
+using Microsoft.AspNetCore.Components;
 
 namespace CampusConnectHub.Client.Services;
 
@@ -9,11 +10,15 @@ public class ApiService
 {
     private readonly HttpClient _httpClient;
     private readonly ILocalStorageService _localStorage;
+    private readonly NavigationManager _navigationManager;
+    private readonly AuthService _authService;
 
-    public ApiService(HttpClient httpClient, ILocalStorageService localStorage)
+    public ApiService(HttpClient httpClient, ILocalStorageService localStorage, NavigationManager navigationManager, AuthService authService)
     {
         _httpClient = httpClient;
         _localStorage = localStorage;
+        _navigationManager = navigationManager;
+        _authService = authService;
     }
 
     private async Task SetAuthHeaderAsync()
@@ -27,6 +32,45 @@ public class ApiService
         else
         {
             _httpClient.DefaultRequestHeaders.Authorization = null;
+        }
+    }
+
+    private async Task HandleUnauthorizedAsync()
+    {
+        await _authService.LogoutAsync();
+        var currentUrl = _navigationManager.Uri;
+        _navigationManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+    }
+
+    private async Task<T?> HandleResponseAsync<T>(HttpResponseMessage response) where T : class
+    {
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            await HandleUnauthorizedAsync();
+            return null;
+        }
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
+
+    private async Task<T?> HandleGetAsync<T>(string url) where T : class
+    {
+        try
+        {
+            await SetAuthHeaderAsync();
+            var response = await _httpClient.GetAsync(url);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await HandleUnauthorizedAsync();
+                return null;
+            }
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<T>();
+        }
+        catch (HttpRequestException ex) when (ex.Message.Contains("401") || ex.Message.Contains("Unauthorized"))
+        {
+            await HandleUnauthorizedAsync();
+            return null;
         }
     }
 
@@ -152,8 +196,8 @@ public class ApiService
 
     public async Task<List<ResourceDto>> GetAdminResourcesAsync()
     {
-        await SetAuthHeaderAsync();
-        return await _httpClient.GetFromJsonAsync<List<ResourceDto>>("api/resources/admin/all") ?? new List<ResourceDto>();
+        var result = await HandleGetAsync<List<ResourceDto>>("api/resources/admin/all");
+        return result ?? new List<ResourceDto>();
     }
 
     public async Task<bool> CreateResourceAsync(CreateResourceDto dto)
@@ -186,8 +230,7 @@ public class ApiService
 
     public async Task<AnalyticsDto?> GetAnalyticsAsync()
     {
-        await SetAuthHeaderAsync();
-        return await _httpClient.GetFromJsonAsync<AnalyticsDto>("api/admin/analytics");
+        return await HandleGetAsync<AnalyticsDto>("api/admin/analytics");
     }
 
     // Profile API
@@ -212,7 +255,6 @@ public class ApiService
     // User Management API
     public async Task<PagedResponse<UserDto>> GetUsersAsync(int pageNumber = 1, int pageSize = 20, string? search = null, string? role = null)
     {
-        await SetAuthHeaderAsync();
         var queryParams = $"pageNumber={pageNumber}&pageSize={pageSize}";
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -222,7 +264,8 @@ public class ApiService
         {
             queryParams += $"&role={Uri.EscapeDataString(role)}";
         }
-        return await _httpClient.GetFromJsonAsync<PagedResponse<UserDto>>($"api/users?{queryParams}") ?? new PagedResponse<UserDto>();
+        var result = await HandleGetAsync<PagedResponse<UserDto>>($"api/users?{queryParams}");
+        return result ?? new PagedResponse<UserDto>();
     }
 
     public async Task<UserDto?> GetUserAsync(int id)

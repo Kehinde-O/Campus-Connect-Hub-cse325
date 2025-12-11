@@ -1,6 +1,9 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
+@using System
 @inject ApiService ApiService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 
 <div class="analytics-container">
     @if (isLoading)
@@ -113,6 +116,20 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (!isAuthenticated)
+        {
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
+            return;
+        }
+
+        var user = await AuthService.GetUserAsync();
+        if (user?.Role != "Administrator")
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
         await LoadAnalytics();
     }
 
@@ -123,7 +140,7 @@
         {
             analytics = await ApiService.GetAnalyticsAsync();
         }
-        catch
+        catch (Exception)
         {
             analytics = null;
         }

@@ -186,15 +186,15 @@ a:hover {
 }
 
 /* Form Controls */
-.form-control, select, input[type="text"], input[type="email"], input[type="password"] {
+.form-control, select, input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], input[type="datetime-local"], input[type="url"], textarea {
     width: 100%;
     padding: 0.625rem 1rem;
     font-size: var(--font-size-base);
     line-height: 1.5;
     color: var(--text-primary);
-    background-color: var(--bg-surface);
+    background-color: #f9fafb;
     background-clip: padding-box;
-    border: 2px solid #9ca3af;
+    border: 2px solid #d1d5db;
     border-radius: var(--radius-md);
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
@@ -515,15 +515,15 @@ a:hover, .btn-link:hover {
 }
 
 /* Enhanced Form Controls */
-.form-control, input[type="text"], input[type="email"], input[type="password"], textarea, select {
+.form-control, input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], input[type="datetime-local"], input[type="url"], textarea, select {
     width: 100%;
     padding: 0.75rem 1rem;
     min-height: 44px;
     font-size: var(--font-size-base);
     font-family: var(--font-family-base);
     color: var(--text-primary);
-    background: var(--bg-primary);
-    border: 2px solid #9ca3af;
+    background-color: #f9fafb;
+    border: 2px solid #d1d5db;
     border-radius: var(--radius-md);
     transition: all var(--transition-base);
 }
