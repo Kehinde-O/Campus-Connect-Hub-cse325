@@ -150,6 +150,12 @@ public class ApiService
         return await _httpClient.GetFromJsonAsync<List<ResourceDto>>("api/resources") ?? new List<ResourceDto>();
     }
 
+    public async Task<List<ResourceDto>> GetAdminResourcesAsync()
+    {
+        await SetAuthHeaderAsync();
+        return await _httpClient.GetFromJsonAsync<List<ResourceDto>>("api/resources/admin/all") ?? new List<ResourceDto>();
+    }
+
     public async Task<bool> CreateResourceAsync(CreateResourceDto dto)
     {
         await SetAuthHeaderAsync();

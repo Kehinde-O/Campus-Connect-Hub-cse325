@@ -104,6 +104,8 @@
 </Modal>
 
 @code {
+    [Parameter] public EventCallback OnDataChanged { get; set; }
+    
     private List<EventDto> events = new();
     private bool showModal = false;
     private bool isEditing = false;
@@ -172,6 +174,7 @@
             if (success)
             {
                 await LoadEvents();
+                await OnDataChanged.InvokeAsync();
                 CloseModal();
             }
         }
@@ -194,8 +197,12 @@
     {
         if (await ConfirmDelete())
         {
-            await ApiService.DeleteEventAsync(id);
-            await LoadEvents();
+            var success = await ApiService.DeleteEventAsync(id);
+            if (success)
+            {
+                await LoadEvents();
+                await OnDataChanged.InvokeAsync();
+            }
         }
     }
 

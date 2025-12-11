@@ -1,6 +1,7 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
 @inject ApiService ApiService
+@inject NotificationService NotificationService
 @inject IJSRuntime JSRuntime
 
 <div class="user-management-container">
@@ -152,6 +153,7 @@
         catch
         {
             users = new PagedResponse<UserDto>();
+            NotificationService.ShowError("Failed to load users. Please try again.");
         }
         finally
         {
@@ -190,9 +192,18 @@
             var success = await ApiService.UpdateUserRoleAsync(selectedUser.Id, new UpdateUserRoleDto { Role = newRole });
             if (success)
             {
+                NotificationService.ShowSuccess("User role updated successfully!");
                 await LoadUsers(users.PageNumber);
                 CloseRoleModal();
             }
+            else
+            {
+                NotificationService.ShowError("Failed to update user role. Please try again.");
+            }
+        }
+        catch
+        {
+            NotificationService.ShowError("An error occurred while updating user role.");
         }
         finally
         {
@@ -204,10 +215,22 @@
     {
         if (await ConfirmDelete())
         {
-            var success = await ApiService.DeleteUserAsync(id);
-            if (success)
+            try
             {
-                await LoadUsers(users.PageNumber);
+                var success = await ApiService.DeleteUserAsync(id);
+                if (success)
+                {
+                    NotificationService.ShowSuccess("User deleted successfully!");
+                    await LoadUsers(users.PageNumber);
+                }
+                else
+                {
+                    NotificationService.ShowError("Failed to delete user. Please try again.");
+                }
+            }
+            catch
+            {
+                NotificationService.ShowError("An error occurred while deleting user.");
             }
         }
     }

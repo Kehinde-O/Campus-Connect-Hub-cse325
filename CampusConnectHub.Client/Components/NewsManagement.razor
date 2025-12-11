@@ -89,6 +89,8 @@
 </Modal>
 
 @code {
+    [Parameter] public EventCallback OnDataChanged { get; set; }
+    
     private PagedResponse<NewsPostDto> newsPosts = new();
     private bool showModal = false;
     private bool isEditing = false;
@@ -146,6 +148,7 @@
             {
                 NotificationService.ShowSuccess(isEditing ? "News post updated successfully!" : "News post created successfully!");
                 await LoadNews();
+                await OnDataChanged.InvokeAsync();
                 CloseModal();
             }
             else
@@ -176,6 +179,7 @@
             {
                 NotificationService.ShowSuccess("News post deleted successfully!");
                 await LoadNews();
+                await OnDataChanged.InvokeAsync();
             }
             else
             {

@@ -116,6 +116,8 @@
 </Modal>
 
 @code {
+    [Parameter] public EventCallback OnDataChanged { get; set; }
+    
     private List<ResourceDto> resources = new();
     private bool showModal = false;
     private bool isEditing = false;
@@ -130,7 +132,7 @@
 
     private async Task LoadResources()
     {
-        resources = await ApiService.GetResourcesAsync();
+        resources = await ApiService.GetAdminResourcesAsync();
     }
 
     private void EditResource(ResourceDto resource)
@@ -175,6 +177,7 @@
             if (success)
             {
                 await LoadResources();
+                await OnDataChanged.InvokeAsync();
                 CloseModal();
             }
         }
@@ -196,8 +199,12 @@
     {
         if (await ConfirmDelete())
         {
-            await ApiService.DeleteResourceAsync(id);
-            await LoadResources();
+            var success = await ApiService.DeleteResourceAsync(id);
+            if (success)
+            {
+                await LoadResources();
+                await OnDataChanged.InvokeAsync();
+            }
         }
     }
 

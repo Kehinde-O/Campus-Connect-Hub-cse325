@@ -41,6 +41,28 @@ public class ResourcesController : ControllerBase
         return Ok(resources);
     }
 
+    [HttpGet("admin/all")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<ActionResult<List<ResourceDto>>> GetAllResources()
+    {
+        var resources = await _context.Resources
+            .OrderBy(r => r.DisplayOrder)
+            .ThenBy(r => r.Title)
+            .Select(r => new ResourceDto
+            {
+                Id = r.Id,
+                Title = r.Title,
+                Description = r.Description,
+                Url = r.Url,
+                Category = r.Category,
+                DisplayOrder = r.DisplayOrder,
+                IsActive = r.IsActive
+            })
+            .ToListAsync();
+
+        return Ok(resources);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ResourceDto>> GetResource(int id)
     {

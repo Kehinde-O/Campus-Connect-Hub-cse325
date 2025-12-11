@@ -105,7 +105,7 @@
                     </button>
                 </div>
                 <div class="card-body p-0">
-                    <NewsManagement @ref="newsManagementRef" />
+                    <NewsManagement @ref="newsManagementRef" OnDataChanged="RefreshDashboard" />
                 </div>
             </div>
 
@@ -120,7 +120,7 @@
                     </button>
                 </div>
                 <div class="card-body p-0">
-                    <EventManagement @ref="eventManagementRef" />
+                    <EventManagement @ref="eventManagementRef" OnDataChanged="RefreshDashboard" />
                 </div>
             </div>
 
@@ -135,7 +135,7 @@
                     </button>
                 </div>
                 <div class="card-body p-0">
-                    <ResourceManagement @ref="resourceManagementRef" />
+                    <ResourceManagement @ref="resourceManagementRef" OnDataChanged="RefreshDashboard" />
                 </div>
             </div>
 
@@ -203,6 +203,12 @@
         {
             isLoading = false;
         }
+    }
+
+    private async Task RefreshDashboard()
+    {
+        await LoadDashboard();
+        StateHasChanged();
     }
 }
 
