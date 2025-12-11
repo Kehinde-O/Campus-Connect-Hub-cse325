@@ -1,0 +1,210 @@
+﻿@page "/counter"
+
+<PageTitle>Counter - Campus Connect Hub</PageTitle>
+
+<div class="counter-container">
+    <div class="counter-card">
+        <div class="counter-header">
+            <h1>Interactive Counter</h1>
+            <p class="subtitle">Click the buttons to increment or reset the counter</p>
+        </div>
+        
+        <div class="counter-display">
+            <div class="counter-value" role="status">@currentCount</div>
+            <div class="counter-label">Current Count</div>
+        </div>
+
+        <div class="counter-actions">
+            <button class="btn-counter btn-increment" @onclick="IncrementCount">
+                <span class="btn-icon">+</span>
+                <span>Increment</span>
+            </button>
+            <button class="btn-counter btn-reset" @onclick="ResetCount" disabled="@(currentCount == 0)">
+                <span class="btn-icon">↺</span>
+                <span>Reset</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private void ResetCount()
+    {
+        currentCount = 0;
+    }
+}
+
+<style>
+    .counter-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 3.5rem);
+        padding: var(--spacing-xl);
+    }
+
+    .counter-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius-2xl);
+        padding: var(--spacing-2xl);
+        box-shadow: var(--shadow-xl);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .counter-header {
+        margin-bottom: var(--spacing-2xl);
+    }
+
+    .counter-header h1 {
+        font-size: var(--font-size-3xl);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: var(--spacing-sm);
+        font-weight: 800;
+    }
+
+    .subtitle {
+        color: var(--text-secondary);
+        font-size: var(--font-size-base);
+    }
+
+    .counter-display {
+        margin-bottom: var(--spacing-2xl);
+        padding: var(--spacing-xl);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: var(--radius-xl);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .counter-value {
+        font-size: 5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: var(--spacing-sm);
+        transition: transform 0.2s;
+    }
+
+    .counter-value:has(+ .counter-label) {
+        animation: pulse 0.3s ease;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .counter-label {
+        color: var(--text-secondary);
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .counter-actions {
+        display: flex;
+        gap: var(--spacing-md);
+        justify-content: center;
+    }
+
+    .btn-counter {
+        flex: 1;
+        padding: var(--spacing-md) var(--spacing-xl);
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-base);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all var(--transition-base);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-increment {
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+    }
+
+    .btn-increment:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-increment:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .btn-reset {
+        background: rgba(127, 140, 141, 0.2);
+        color: var(--text-primary);
+        border: 2px solid rgba(127, 140, 141, 0.3);
+    }
+
+    .btn-reset:hover:not(:disabled) {
+        background: rgba(127, 140, 141, 0.3);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-reset:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-icon {
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+    }
+
+    @media (max-width: 640px) {
+        .counter-container {
+            padding: var(--spacing-md);
+        }
+
+        .counter-card {
+            padding: var(--spacing-xl);
+        }
+
+        .counter-value {
+            font-size: 4rem;
+        }
+
+        .counter-actions {
+            flex-direction: column;
+        }
+    }
+</style>

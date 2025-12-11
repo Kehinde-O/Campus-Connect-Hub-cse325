@@ -1,0 +1,310 @@
+@page "/resources"
+@using CampusConnectHub.Client.Services
+@using CampusConnectHub.Shared.DTOs
+@inject ApiService ApiService
+
+<PageTitle>Resources - Campus Connect Hub</PageTitle>
+
+<div class="resources-container">
+    <div class="header-section">
+        <h1>Campus Resources</h1>
+        <p class="subtitle">Quick links to essential campus services</p>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner-large"></div>
+            <p class="loading-text">Loading resources...</p>
+        </div>
+    }
+    else if (resources.Any())
+    {
+        <div class="resources-grid">
+            @foreach (var resource in resources)
+            {
+                <a href="@resource.Url" target="_blank" class="resource-card" rel="noopener noreferrer">
+                    <div class="resource-icon-wrapper">
+                        <div class="resource-icon">@GetCategoryIcon(resource.Category)</div>
+                    </div>
+                    <div class="resource-content">
+                        <h3>@resource.Title</h3>
+                        <p>@resource.Description</p>
+                        <div class="resource-footer">
+                            <div class="resource-category">@resource.Category</div>
+                            <span class="resource-link-icon">→</span>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h3>No resources available</h3>
+            <p>Resources will appear here when they're added!</p>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ResourceDto> resources = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadResources();
+    }
+
+    private async Task LoadResources()
+    {
+        isLoading = true;
+        try
+        {
+            resources = await ApiService.GetResourcesAsync();
+        }
+        catch
+        {
+            resources = new List<ResourceDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetCategoryIcon(string category)
+    {
+        return category?.ToLower() switch
+        {
+            "academic" => "📖",
+            "library" => "📚",
+            "student services" => "🎓",
+            "health" => "🏥",
+            "dining" => "🍽️",
+            "housing" => "🏠",
+            "technology" => "💻",
+            "sports" => "⚽",
+            "counseling" => "💬",
+            _ => "🔗"
+        };
+    }
+}
+
+<style>
+    .resources-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: var(--spacing-xl);
+    }
+
+    .header-section {
+        margin-bottom: var(--spacing-2xl);
+        text-align: center;
+    }
+
+    .header-section h1 {
+        font-size: var(--font-size-4xl);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: var(--spacing-sm);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: var(--font-size-lg);
+        font-weight: 400;
+    }
+
+    .resources-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: var(--spacing-xl);
+    }
+
+    .resource-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-md);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        transition: all var(--transition-base);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .resource-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        transform: scaleX(0);
+        transition: transform var(--transition-base);
+    }
+
+    .resource-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .resource-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .resource-card:hover .resource-link-icon {
+        transform: translateX(4px);
+    }
+
+    .resource-icon-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .resource-icon {
+        font-size: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: var(--radius-full);
+        transition: transform var(--transition-base);
+    }
+
+    .resource-card:hover .resource-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .resource-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .resource-content h3 {
+        margin: 0 0 var(--spacing-sm) 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .resource-content p {
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-md);
+        line-height: 1.7;
+        font-size: var(--font-size-base);
+        flex: 1;
+    }
+
+    .resource-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: var(--spacing-md);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .resource-category {
+        display: inline-block;
+        padding: var(--spacing-xs) var(--spacing-md);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .resource-link-icon {
+        font-size: var(--font-size-xl);
+        color: var(--primary-color);
+        transition: transform var(--transition-base);
+        font-weight: 700;
+    }
+
+    .loading-container {
+        text-align: center;
+        padding: var(--spacing-2xl);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .loading-spinner-large {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: var(--font-size-lg);
+        font-weight: 500;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: var(--spacing-2xl);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: var(--spacing-md);
+        opacity: 0.8;
+    }
+
+    .empty-state h3 {
+        color: white;
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-sm);
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: var(--font-size-base);
+    }
+
+    @media (max-width: 768px) {
+        .resources-grid {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .resources-container {
+            padding: var(--spacing-md);
+        }
+
+        .header-section h1 {
+            font-size: var(--font-size-3xl);
+        }
+    }
+</style>
+

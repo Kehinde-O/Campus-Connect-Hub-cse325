@@ -1,0 +1,218 @@
+@using CampusConnectHub.Client.Services
+@using CampusConnectHub.Shared.DTOs
+@inject ApiService ApiService
+
+<div class="management-list">
+    @if (events.Any())
+    {
+        <div class="management-grid">
+            @foreach (var eventItem in events)
+            {
+                <div class="management-card">
+                    <div class="card-header">
+                        <div class="card-date-badge">
+                            <span class="date-month">@eventItem.EventDate.ToString("MMM")</span>
+                            <span class="date-day">@eventItem.EventDate.Day</span>
+                        </div>
+                        <div class="card-title-section">
+                            <h4>@eventItem.Title</h4>
+                            <div class="card-meta">
+                                <span class="meta-item">📍 @eventItem.Location</span>
+                                <span class="meta-item">🕐 @eventItem.EventDate.ToString("h:mm tt")</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-action btn-edit" @onclick="() => EditEvent(eventItem)" title="Edit">
+                            <span>✏️</span> Edit
+                        </button>
+                        <button class="btn-action btn-delete" @onclick="() => DeleteEvent(eventItem.Id)" title="Delete">
+                            <span>🗑️</span> Delete
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <p>No events found</p>
+        </div>
+    }
+</div>
+
+@code {
+    private List<EventDto> events = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        events = await ApiService.GetEventsAsync(false);
+    }
+
+    private void EditEvent(EventDto eventItem)
+    {
+        // TODO: Implement edit functionality
+    }
+
+    private async Task DeleteEvent(int id)
+    {
+        await ApiService.DeleteEventAsync(id);
+        await LoadEvents();
+    }
+}
+
+<style>
+    .management-list {
+        margin-top: var(--spacing-md);
+    }
+
+    .management-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: var(--spacing-lg);
+    }
+
+    .management-card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all var(--transition-base);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .management-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .card-header {
+        display: flex;
+        gap: var(--spacing-md);
+    }
+
+    .card-date-badge {
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border-radius: var(--radius-md);
+        padding: var(--spacing-sm) var(--spacing-md);
+        text-align: center;
+        min-width: 60px;
+        height: fit-content;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .date-month {
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        text-transform: uppercase;
+        opacity: 0.9;
+    }
+
+    .date-day {
+        font-size: var(--font-size-xl);
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .card-title-section {
+        flex: 1;
+    }
+
+    .card-title-section h4 {
+        margin: 0 0 var(--spacing-xs) 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-lg);
+        font-weight: 700;
+    }
+
+    .card-meta {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .meta-item {
+        color: var(--text-secondary);
+        font-size: var(--font-size-sm);
+    }
+
+    .card-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        padding-top: var(--spacing-md);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        transition: all var(--transition-base);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+    }
+
+    .btn-edit {
+        background: rgba(52, 152, 219, 0.1);
+        color: var(--info-color);
+    }
+
+    .btn-edit:hover {
+        background: rgba(52, 152, 219, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .btn-delete {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--error-color);
+    }
+
+    .btn-delete:hover {
+        background: rgba(231, 76, 60, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .empty-state {
+        padding: var(--spacing-2xl);
+        text-align: center;
+        color: var(--text-secondary);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: var(--spacing-sm);
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-size: var(--font-size-base);
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .management-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+

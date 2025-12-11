@@ -1,0 +1,112 @@
+﻿@using CampusConnectHub.Client.Services
+@using CampusConnectHub.Shared.DTOs
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <span style="font-size: 1.5rem;">🎓</span> Campus Connect Hub
+        </a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    @if (isAuthenticated && user != null)
+    {
+        <div class="user-profile-section">
+            <div class="user-profile-card">
+                <div class="user-avatar">
+                    @(user.FirstName?.Substring(0, 1).ToUpper() ?? "U")
+                </div>
+                <div class="user-name">@user.FirstName @user.LastName</div>
+                <div class="user-role">@user.Role</div>
+            </div>
+        </div>
+    }
+    
+    <nav class="flex-column">
+        <div class="nav-item">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> News Feed
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="events">
+                <span class="bi bi-calendar-event" aria-hidden="true"></span> Events
+            </NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="resources">
+                <span class="bi bi-link-45deg" aria-hidden="true"></span> Resources
+            </NavLink>
+        </div>
+        @if (isAuthenticated)
+        {
+            @if (isAdmin)
+            {
+                <div class="nav-item">
+                    <NavLink class="nav-link" href="admin">
+                        <span class="bi bi-speedometer2" aria-hidden="true"></span> Admin
+                    </NavLink>
+                </div>
+            }
+            <div class="nav-item">
+                <button class="nav-link btn-link" @onclick="HandleLogout">
+                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Logout
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+            <div class="nav-item">
+                <NavLink class="nav-link" href="register">
+                    <span class="bi bi-person-plus" aria-hidden="true"></span> Register
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private bool isAuthenticated = false;
+    private bool isAdmin = false;
+    private UserResponse? user;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckAuth();
+    }
+
+    private async Task CheckAuth()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (isAuthenticated)
+        {
+            user = await AuthService.GetUserAsync();
+            isAdmin = user?.Role == "Administrator";
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/");
+    }
+}

@@ -1,0 +1,46 @@
+﻿@inherits LayoutComponentBase
+@using CampusConnectHub.Client.Services
+@inject AuthService AuthService
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            @if (isAuthenticated)
+            {
+                <span class="user-greeting">Welcome, @userName!</span>
+            }
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private bool isAuthenticated = false;
+    private string userName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (isAuthenticated)
+        {
+            var user = await AuthService.GetUserAsync();
+            userName = user?.FirstName ?? "User";
+        }
+    }
+}
+
+<style>
+    .user-greeting {
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-right: auto;
+    }
+</style>

@@ -1,0 +1,395 @@
+@page "/admin"
+@using CampusConnectHub.Client.Services
+@using CampusConnectHub.Shared.DTOs
+@inject ApiService ApiService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Admin Dashboard - Campus Connect Hub</PageTitle>
+
+@if (!isAdmin)
+{
+    <div class="unauthorized">You do not have permission to access this page.</div>
+}
+else
+{
+    <div class="admin-container">
+        <div class="header-section">
+            <h1>Admin Dashboard</h1>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="loading">Loading dashboard...</div>
+        }
+        else
+        {
+            <div class="dashboard-stats">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon">📰</div>
+                    <div class="stat-content">
+                        <div class="stat-value">@dashboard?.TotalNewsPosts</div>
+                        <div class="stat-label">Total News Posts</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <div class="stat-value">@dashboard?.PublishedNewsPosts</div>
+                        <div class="stat-label">Published Posts</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-info">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-content">
+                        <div class="stat-value">@dashboard?.TotalEvents</div>
+                        <div class="stat-label">Total Events</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-warning">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-content">
+                        <div class="stat-value">@dashboard?.UpcomingEvents</div>
+                        <div class="stat-label">Upcoming Events</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-secondary">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-value">@dashboard?.TotalRSVPs</div>
+                        <div class="stat-label">Total RSVPs</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-accent">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-content">
+                        <div class="stat-value">@dashboard?.TotalUsers</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-sections">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="section-icon">📰</span>
+                            News Management
+                        </h2>
+                        <button class="btn-primary" @onclick="() => showNewsModal = true">
+                            <span>+</span> Create News Post
+                        </button>
+                    </div>
+                    <NewsManagement />
+                </div>
+
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="section-icon">📅</span>
+                            Event Management
+                        </h2>
+                        <button class="btn-primary" @onclick="() => showEventModal = true">
+                            <span>+</span> Create Event
+                        </button>
+                    </div>
+                    <EventManagement />
+                </div>
+
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="section-icon">📚</span>
+                            Resource Management
+                        </h2>
+                        <button class="btn-primary" @onclick="() => showResourceModal = true">
+                            <span>+</span> Create Resource
+                        </button>
+                    </div>
+                    <ResourceManagement />
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private AdminDashboardDto? dashboard;
+    private bool isLoading = true;
+    private bool isAdmin = false;
+    private bool showNewsModal = false;
+    private bool showEventModal = false;
+    private bool showResourceModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthService.GetUserAsync();
+        isAdmin = user?.Role == "Administrator";
+
+        if (!isAdmin)
+        {
+            isLoading = false;
+            return;
+        }
+
+        await LoadDashboard();
+    }
+
+    private async Task LoadDashboard()
+    {
+        isLoading = true;
+        try
+        {
+            dashboard = await ApiService.GetAdminDashboardAsync();
+        }
+        catch
+        {
+            dashboard = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
+<style>
+    .admin-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: var(--spacing-xl);
+    }
+
+    .header-section {
+        margin-bottom: var(--spacing-2xl);
+        text-align: center;
+    }
+
+    .header-section h1 {
+        font-size: var(--font-size-4xl);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: var(--spacing-sm);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-2xl);
+    }
+
+    .stat-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        transition: all var(--transition-base);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        transform: scaleX(0);
+        transition: transform var(--transition-base);
+    }
+
+    .stat-card-primary::before {
+        background: linear-gradient(90deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    }
+
+    .stat-card-success::before {
+        background: var(--success-color);
+    }
+
+    .stat-card-info::before {
+        background: var(--info-color);
+    }
+
+    .stat-card-warning::before {
+        background: var(--warning-color);
+    }
+
+    .stat-card-secondary::before {
+        background: var(--secondary-color);
+    }
+
+    .stat-card-accent::before {
+        background: var(--accent-color);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-lg);
+        background: rgba(102, 126, 234, 0.1);
+        flex-shrink: 0;
+    }
+
+    .stat-card-success .stat-icon {
+        background: rgba(39, 174, 96, 0.1);
+    }
+
+    .stat-card-info .stat-icon {
+        background: rgba(52, 152, 219, 0.1);
+    }
+
+    .stat-card-warning .stat-icon {
+        background: rgba(243, 156, 18, 0.1);
+    }
+
+    .stat-card-secondary .stat-icon {
+        background: rgba(240, 147, 251, 0.1);
+    }
+
+    .stat-card-accent .stat-icon {
+        background: rgba(79, 172, 254, 0.1);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: var(--font-size-3xl);
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-sections {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xl);
+    }
+
+    .admin-section {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-lg);
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .admin-section h2 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .section-icon {
+        font-size: var(--font-size-xl);
+    }
+
+    .btn-primary {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 700;
+        transition: all var(--transition-base);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .unauthorized, .loading {
+        text-align: center;
+        padding: var(--spacing-2xl);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: var(--font-size-lg);
+    }
+
+    .unauthorized {
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        border-radius: var(--radius-xl);
+        margin: var(--spacing-2xl);
+        box-shadow: var(--shadow-md);
+    }
+
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: var(--spacing-md);
+        }
+
+        .dashboard-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
