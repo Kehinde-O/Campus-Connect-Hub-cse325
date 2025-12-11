@@ -15,7 +15,14 @@
 </div>
 
 <div class="container-fluid pb-5">
-    @if (!isAdmin)
+    @if (isCheckingAuth)
+    {
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-secondary">Checking authentication...</p>
+        </div>
+    }
+    else if (!isAdmin)
     {
         <div class="card shadow-sm text-center py-5">
             <div class="card-body">
@@ -171,6 +178,7 @@
     private AdminDashboardDto? dashboard;
     private bool isLoading = true;
     private bool isAdmin = false;
+    private bool isCheckingAuth = true;
     private NewsManagement? newsManagementRef;
     private EventManagement? eventManagementRef;
     private ResourceManagement? resourceManagementRef;
@@ -180,12 +188,14 @@
         var isAuthenticated = await AuthService.IsAuthenticatedAsync();
         if (!isAuthenticated)
         {
+            isCheckingAuth = false;
             Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/admin")}");
             return;
         }
 
         var user = await AuthService.GetUserAsync();
         isAdmin = user?.Role == "Administrator";
+        isCheckingAuth = false;
 
         if (!isAdmin)
         {

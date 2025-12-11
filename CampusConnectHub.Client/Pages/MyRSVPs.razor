@@ -15,7 +15,14 @@
 </div>
 
 <div class="container-fluid rsvps-container">
-    @if (!isAuthenticated)
+    @if (isCheckingAuth)
+    {
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-secondary">Checking authentication...</p>
+        </div>
+    }
+    else if (!isAuthenticated)
     {
         <div class="card shadow-sm text-center py-5">
             <div class="card-body">
@@ -110,6 +117,7 @@
     private List<RSVPDto> filteredRSVPs = new();
     private bool isAuthenticated = false;
     private bool isLoading = true;
+    private bool isCheckingAuth = true;
     private string filterType = "all";
     private int upcomingCount = 0;
     private int pastCount = 0;
@@ -117,6 +125,8 @@
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        isCheckingAuth = false;
+        
         if (!isAuthenticated)
         {
             Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/my-rsvps")}");

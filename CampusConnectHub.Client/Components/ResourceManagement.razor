@@ -8,7 +8,14 @@
 @inject IJSRuntime JSRuntime
 
 <div class="management-list">
-    @if (resources.Any())
+    @if (isCheckingAuth)
+    {
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-secondary">Checking authentication...</p>
+        </div>
+    }
+    else if (resources.Any())
     {
         <div class="management-grid">
             @foreach (var resource in resources)
@@ -16,15 +23,15 @@
                 <div class="management-card">
                     <div class="card-header">
                         <div class="card-icon-badge">
-                            <span class="card-icon">@GetCategoryIcon(resource.Category)</span>
+                            <i class="bi @GetCategoryIconClass(resource.Category)"></i>
                         </div>
                         <div class="card-title-section">
                             <h4>@resource.Title</h4>
                             <div class="card-meta">
-                                <span class="meta-item">📁 @resource.Category</span>
+                                <span class="category-badge">@resource.Category</span>
                                 @if (!resource.IsActive)
                                 {
-                                    <span class="meta-item status-inactive">Inactive</span>
+                                    <span class="status-badge status-inactive">Inactive</span>
                                 }
                             </div>
                         </div>
@@ -125,6 +132,7 @@
     private bool showModal = false;
     private bool isEditing = false;
     private bool isSaving = false;
+    private bool isCheckingAuth = true;
     private CreateResourceDto currentResource = new();
     private int? editingResourceId = null;
 
@@ -133,6 +141,7 @@
         var isAuthenticated = await AuthService.IsAuthenticatedAsync();
         if (!isAuthenticated)
         {
+            isCheckingAuth = false;
             Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
             return;
         }
@@ -140,10 +149,12 @@
         var user = await AuthService.GetUserAsync();
         if (user?.Role != "Administrator")
         {
+            isCheckingAuth = false;
             Navigation.NavigateTo("/");
             return;
         }
 
+        isCheckingAuth = false;
         await LoadResources();
     }
 
@@ -242,20 +253,22 @@
         CreateNewResource();
     }
 
-    private string GetCategoryIcon(string category)
+    private string GetCategoryIconClass(string category)
     {
         return category?.ToLower() switch
         {
-            "academic" => "Academic",
-            "library" => "Library",
-            "student services" => "Services",
-            "health" => "Health",
-            "dining" => "Dining",
-            "housing" => "Housing",
-            "technology" => "Tech",
-            "sports" => "Sports",
-            "counseling" => "Support",
-            _ => "Link"
+            "academic" => "bi-book-half",
+            "library" => "bi-journal-richtext",
+            "student services" => "bi-person-badge",
+            "health" => "bi-heart-pulse-fill",
+            "dining" => "bi-cup-hot-fill",
+            "housing" => "bi-house-door-fill",
+            "technology" => "bi-laptop",
+            "sports" => "bi-trophy-fill",
+            "counseling" => "bi-chat-heart-fill",
+            "support" => "bi-life-preserver",
+            "campus services" => "bi-building",
+            _ => "bi-link-45deg"
         };
     }
 }
@@ -296,18 +309,25 @@
     }
 
     .card-icon-badge {
-        width: 60px;
-        height: 60px;
+        width: 64px;
+        height: 64px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+        border-radius: 50%;
         flex-shrink: 0;
+        box-shadow: var(--shadow-md);
+        transition: transform var(--transition-base);
     }
 
-    .card-icon {
-        font-size: 2rem;
+    .card-icon-badge i {
+        font-size: 1.75rem;
+        color: white;
+    }
+
+    .management-card:hover .card-icon-badge {
+        transform: scale(1.05) rotate(5deg);
     }
 
     .card-title-section {
@@ -323,14 +343,38 @@
 
     .card-meta {
         display: flex;
-        flex-direction: column;
+        flex-wrap: wrap;
         gap: var(--spacing-xs);
+        align-items: center;
     }
 
-    .meta-item {
-        color: var(--text-secondary-dark);
-        font-size: var(--font-size-base);
-        font-weight: 500;
+    .category-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        color: var(--primary-color);
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-inactive {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--error-color);
+        border: 1px solid rgba(231, 76, 60, 0.2);
     }
 
     .card-content {

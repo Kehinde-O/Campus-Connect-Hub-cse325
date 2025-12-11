@@ -8,21 +8,30 @@
 @inject IJSRuntime JSRuntime
 
 <div class="user-management-container">
-    <div class="management-header">
-        <div class="search-filters">
-            <input type="text" @bind="searchText" @bind:event="oninput" @onkeypress="HandleKeyPress" 
-                   class="search-input" placeholder="Search users..." />
-            <select @bind="roleFilter" @bind:event="onchange" class="filter-select">
-                <option value="">All Roles</option>
-                <option value="Student">Student</option>
-                <option value="Administrator">Administrator</option>
-            </select>
-            <button class="btn-search" @onclick="() => LoadUsers()" type="button">Search</button>
-        </div>
-    </div>
-
-    @if (isLoading)
+    @if (isCheckingAuth)
     {
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-secondary">Checking authentication...</p>
+        </div>
+    }
+    else
+    {
+        <div class="management-header">
+            <div class="search-filters">
+                <input type="text" @bind="searchText" @bind:event="oninput" @onkeypress="HandleKeyPress" 
+                       class="search-input" placeholder="Search users..." />
+                <select @bind="roleFilter" @bind:event="onchange" class="filter-select">
+                    <option value="">All Roles</option>
+                    <option value="Student">Student</option>
+                    <option value="Administrator">Administrator</option>
+                </select>
+                <button class="btn-search" @onclick="() => LoadUsers()" type="button">Search</button>
+            </div>
+        </div>
+
+        @if (isLoading)
+        {
         <div class="loading-container">
             <div class="loading-spinner-large"></div>
             <p class="loading-text">Loading users...</p>
@@ -101,6 +110,7 @@
             <p>No users found</p>
         </div>
     }
+    }
 </div>
 
 @if (showRoleModal && selectedUser != null)
@@ -132,6 +142,7 @@
 @code {
     private PagedResponse<UserDto> users = new();
     private bool isLoading = true;
+    private bool isCheckingAuth = true;
     private string searchText = string.Empty;
     private string roleFilter = string.Empty;
     private bool showRoleModal = false;
@@ -144,6 +155,7 @@
         var isAuthenticated = await AuthService.IsAuthenticatedAsync();
         if (!isAuthenticated)
         {
+            isCheckingAuth = false;
             Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
             return;
         }
@@ -151,10 +163,12 @@
         var user = await AuthService.GetUserAsync();
         if (user?.Role != "Administrator")
         {
+            isCheckingAuth = false;
             Navigation.NavigateTo("/");
             return;
         }
 
+        isCheckingAuth = false;
         await LoadUsers();
     }
 

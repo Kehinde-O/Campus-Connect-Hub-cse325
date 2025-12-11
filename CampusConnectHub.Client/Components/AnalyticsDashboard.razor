@@ -6,7 +6,14 @@
 @inject NavigationManager Navigation
 
 <div class="analytics-container">
-    @if (isLoading)
+    @if (isCheckingAuth)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner-large"></div>
+            <p class="loading-text">Checking authentication...</p>
+        </div>
+    }
+    else if (isLoading)
     {
         <div class="loading-container">
             <div class="loading-spinner-large"></div>
@@ -113,12 +120,14 @@
 @code {
     private AnalyticsDto? analytics;
     private bool isLoading = true;
+    private bool isCheckingAuth = true;
 
     protected override async Task OnInitializedAsync()
     {
         var isAuthenticated = await AuthService.IsAuthenticatedAsync();
         if (!isAuthenticated)
         {
+            isCheckingAuth = false;
             Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
             return;
         }
@@ -126,10 +135,12 @@
         var user = await AuthService.GetUserAsync();
         if (user?.Role != "Administrator")
         {
+            isCheckingAuth = false;
             Navigation.NavigateTo("/");
             return;
         }
 
+        isCheckingAuth = false;
         await LoadAnalytics();
     }
 
