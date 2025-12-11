@@ -9,12 +9,13 @@ A full-stack .NET 8 application designed to bridge the communication gap between
 - **Event Management**: Calendar interface allowing students to view upcoming events and RSVP
 - **Resource Directory**: Curated list of quick links to essential campus services
 - **Admin Dashboard**: Restricted view for faculty to post news and manage events
+- **Modern UI/UX**: Beautiful, responsive design with glassmorphism effects and smooth animations
 
 ## Technology Stack
 
 - **Frontend**: Blazor WebAssembly (.NET 8)
 - **Backend**: ASP.NET Core Web API (.NET 8)
-- **Database**: PostgreSQL with Entity Framework Core
+- **Database**: PostgreSQL with Entity Framework Core (Neon PostgreSQL)
 - **Hosting**: Microsoft Azure
   - Frontend: Azure Static Web Apps
   - Backend: Azure App Service (Linux)
@@ -44,18 +45,13 @@ Campus Connect Hub/
 ### Prerequisites
 
 - .NET 8 SDK
-- PostgreSQL database (local or Azure)
+- PostgreSQL database (Neon PostgreSQL configured)
 - Visual Studio 2022 or VS Code
 
 ### Setup
 
 1. Clone the repository
-2. Update the connection string in `CampusConnectHub.Server/appsettings.json`:
-   ```json
-   "ConnectionStrings": {
-     "DefaultConnection": "Host=localhost;Database=campusconnecthub;Username=postgres;Password=yourpassword"
-   }
-   ```
+2. The connection string is already configured for Neon PostgreSQL in `CampusConnectHub.Server/appsettings.json`
 
 3. Run the database migrations:
    ```bash
@@ -157,4 +153,3 @@ This project is part of a CSE325 course assignment.
 ## Team
 
 Team 14 - Campus Connect Hub
-
