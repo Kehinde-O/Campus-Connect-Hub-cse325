@@ -10,6 +10,7 @@ namespace CampusConnectHub.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableCors] // Enable CORS for all actions
 [Authorize]
 public class EventRSVPController : ControllerBase
 {
