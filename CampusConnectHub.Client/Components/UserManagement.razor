@@ -1,6 +1,7 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
 @inject ApiService ApiService
+@inject IJSRuntime JSRuntime
 
 <div class="user-management-container">
     <div class="management-header">
@@ -12,7 +13,7 @@
                 <option value="Student">Student</option>
                 <option value="Administrator">Administrator</option>
             </select>
-            <button class="btn-search" @onclick="LoadUsers">Search</button>
+            <button class="btn-search" @onclick="() => LoadUsers()" type="button">Search</button>
         </div>
     </div>
 
@@ -158,11 +159,11 @@
         }
     }
 
-    private void HandleKeyPress(KeyboardEventArgs e)
+    private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            LoadUsers();
+            await LoadUsers();
         }
     }
 
@@ -213,7 +214,7 @@
 
     private async Task<bool> ConfirmDelete()
     {
-        return await Task.FromResult(confirm("Are you sure you want to delete this user? This action cannot be undone."));
+        return await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this user? This action cannot be undone.");
     }
 }
 

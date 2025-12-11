@@ -3,6 +3,7 @@
 @using CampusConnectHub.Shared.DTOs
 @inject ApiService ApiService
 @inject AuthService AuthService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>My RSVPs - Campus Connect Hub</PageTitle>
 
@@ -32,13 +33,13 @@ else
         </div>
 
         <div class="filter-section">
-            <button class="filter-btn @(filterType == "all" ? "active" : "")" @onclick="() => SetFilter("all")">
+            <button class="filter-btn @(filterType == "all" ? "active" : "")" @onclick='() => SetFilter("all")'>
                 All (@rsvps.Count)
             </button>
-            <button class="filter-btn @(filterType == "upcoming" ? "active" : "")" @onclick="() => SetFilter("upcoming")">
+            <button class="filter-btn @(filterType == "upcoming" ? "active" : "")" @onclick='() => SetFilter("upcoming")'>
                 Upcoming (@upcomingCount)
             </button>
-            <button class="filter-btn @(filterType == "past" ? "active" : "")" @onclick="() => SetFilter("past")">
+            <button class="filter-btn @(filterType == "past" ? "active" : "")" @onclick='() => SetFilter("past")'>
                 Past (@pastCount)
             </button>
         </div>
@@ -159,7 +160,7 @@ else
 
     private async Task<bool> ConfirmCancel()
     {
-        return await Task.FromResult(confirm("Are you sure you want to cancel your RSVP?"));
+        return await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to cancel your RSVP?");
     }
 }
 

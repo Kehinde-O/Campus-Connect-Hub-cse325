@@ -3,6 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject ApiService ApiService
 @inject NotificationService NotificationService
+@inject IJSRuntime JSRuntime
 
 <div class="management-list">
     @if (newsPosts.Items.Any())
@@ -186,7 +187,7 @@
     private async Task<bool> ConfirmDelete()
     {
         // Simple confirmation - in production, use a proper confirmation dialog
-        return await Task.FromResult(confirm("Are you sure you want to delete this news post?"));
+        return await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this news post?");
     }
 
     public void OpenCreateModal()
