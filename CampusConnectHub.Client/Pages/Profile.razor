@@ -6,6 +6,7 @@
 @inject AuthService AuthService
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
+@using System
 
 <PageTitle>Profile - Campus Connect Hub</PageTitle>
 
@@ -167,19 +168,22 @@
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsAuthenticatedAsync();
-        if (isAuthenticated)
+        if (!isAuthenticated)
         {
-            currentUser = await AuthService.GetUserAsync();
-            if (currentUser != null)
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/profile")}");
+            return;
+        }
+        
+        currentUser = await AuthService.GetUserAsync();
+        if (currentUser != null)
+        {
+            profileData = new UpdateProfileDto
             {
-                profileData = new UpdateProfileDto
-                {
-                    FirstName = currentUser.FirstName,
-                    LastName = currentUser.LastName,
-                    Email = currentUser.Email
-                };
-                await LoadUserStats();
-            }
+                FirstName = currentUser.FirstName,
+                LastName = currentUser.LastName,
+                Email = currentUser.Email
+            };
+            await LoadUserStats();
         }
         isLoading = false;
     }

@@ -52,9 +52,9 @@
                             </td>
                             <td>
                                 <div class="activity-stats">
-                                    <span title="News Posts">📰 @user.NewsPostsCount</span>
-                                    <span title="Events Created">📅 @user.EventsCreatedCount</span>
-                                    <span title="RSVPs">✅ @user.RSVPsCount</span>
+                                    <span title="News Posts"><i class="bi bi-newspaper me-1"></i>@user.NewsPostsCount</span>
+                                    <span title="Events Created"><i class="bi bi-calendar-event me-1"></i>@user.EventsCreatedCount</span>
+                                    <span title="RSVPs"><i class="bi bi-check-circle me-1"></i>@user.RSVPsCount</span>
                                 </div>
                             </td>
                             <td>@user.CreatedAt.ToString("MMM dd, yyyy")</td>
@@ -94,7 +94,7 @@
     else
     {
         <div class="empty-state">
-            <div class="empty-icon">👥</div>
+            <div class="empty-icon"><i class="bi bi-people display-1 text-tertiary"></i></div>
             <p>No users found</p>
         </div>
     }
@@ -260,7 +260,7 @@
         flex: 1;
         min-width: 200px;
         padding: var(--spacing-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
         border-radius: var(--radius-md);
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
@@ -269,7 +269,7 @@
 
     .filter-select {
         padding: var(--spacing-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
         border-radius: var(--radius-md);
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);

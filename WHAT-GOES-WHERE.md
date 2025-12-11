@@ -156,11 +156,11 @@ If you want **ONE service instead of TWO**, you can:
 ## Current Workflow Status
 
 I see you have:
-- ✅ `.github/workflows/azure-webapps-deploy.yml` - For backend (App Service)
-- ✅ `.github/workflows/main_campus-connect-hub.yml` - Auto-created by Azure (also for App Service)
+- `.github/workflows/azure-webapps-deploy.yml` - For backend (App Service)
+- `.github/workflows/main_campus-connect-hub.yml` - Auto-created by Azure (also for App Service)
 
 **You still need**:
-- ⚠️ Frontend workflow for Static Web App (or create Static Web App in Azure Portal and it will auto-create the workflow)
+- Frontend workflow for Static Web App (or create Static Web App in Azure Portal and it will auto-create the workflow)
 
 ---
 

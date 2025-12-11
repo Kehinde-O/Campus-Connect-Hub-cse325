@@ -45,28 +45,36 @@
 
 <style>
     .app-container {
-        display: flex;
+        display: grid;
+        grid-template-columns: 260px 1fr; /* Fixed sidebar width, remaining space for content */
         min-height: 100vh;
         background-color: var(--bg-primary);
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0; /* Remove any gap between grid items */
     }
 
     .sidebar {
-        width: 260px;
         background-color: var(--primary-color);
         color: white;
-        flex-shrink: 0;
-        position: fixed;
+        height: 100vh;
+        position: sticky; /* Sticky position keeps it in view while scrolling */
         top: 0;
-        bottom: 0;
-        left: 0;
         z-index: 100;
+        overflow-y: auto; /* Allow sidebar scrolling if content is long */
+        width: 260px;
+        flex-shrink: 0;
     }
 
     .main-wrapper {
-        flex: 1;
-        margin-left: 260px; /* Match sidebar width */
         display: flex;
         flex-direction: column;
+        min-width: 0; /* Prevent flex item overflow issues */
+        overflow-x: hidden;
+        width: 100%;
+        margin: 0;
+        padding: 0;
     }
 
     .top-bar {
@@ -80,6 +88,9 @@
         position: sticky;
         top: 0;
         z-index: 90;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
     }
 
     .page-title {
@@ -127,15 +138,27 @@
     .content {
         padding: var(--spacing-xl);
         flex: 1;
+        width: 100%;
+        margin: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Ensure no extra spacing */
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
     }
 
     /* Responsive adjustments */
     @@media (max-width: 768px) {
+        .app-container {
+            grid-template-columns: 1fr; /* Single column layout on mobile */
+        }
+
         .sidebar {
             display: none; /* In a real app, implement a toggle */
-        }
-        .main-wrapper {
-            margin-left: 0;
         }
     }
 </style>

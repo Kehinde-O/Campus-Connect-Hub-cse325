@@ -2,6 +2,7 @@
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Client.Components
 @using CampusConnectHub.Shared.DTOs
+@using System
 @inject ApiService ApiService
 @inject AuthService AuthService
 @inject NavigationManager Navigation
@@ -176,6 +177,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (!isAuthenticated)
+        {
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/admin")}");
+            return;
+        }
+
         var user = await AuthService.GetUserAsync();
         isAdmin = user?.Role == "Administrator";
 

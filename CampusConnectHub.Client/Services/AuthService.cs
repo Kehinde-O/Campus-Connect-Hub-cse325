@@ -37,7 +37,7 @@ public class AuthService
                 throw new HttpRequestException($"Login failed: {response.StatusCode}");
             }
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
             // Re-throw to be caught by the UI
             throw;
@@ -86,7 +86,7 @@ public class AuthService
                 }
             }
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
             // Re-throw to be caught by the UI
             throw;

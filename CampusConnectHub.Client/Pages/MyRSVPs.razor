@@ -1,8 +1,10 @@
 @page "/my-rsvps"
 @using CampusConnectHub.Client.Services
 @using CampusConnectHub.Shared.DTOs
+@using System
 @inject ApiService ApiService
 @inject AuthService AuthService
+@inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 
 <PageTitle>My RSVPs - Campus Connect Hub</PageTitle>
@@ -115,10 +117,13 @@
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsAuthenticatedAsync();
-        if (isAuthenticated)
+        if (!isAuthenticated)
         {
-            await LoadRSVPs();
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/my-rsvps")}");
+            return;
         }
+        
+        await LoadRSVPs();
         isLoading = false;
     }
 

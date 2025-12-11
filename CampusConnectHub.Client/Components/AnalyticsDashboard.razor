@@ -96,8 +96,8 @@
                         <div class="popular-event-card">
                             <div class="event-title">@eventItem.EventTitle</div>
                             <div class="event-details">
-                                <span>📅 @eventItem.EventDate.ToString("MMM dd, yyyy")</span>
-                                <span class="rsvp-count">✅ @eventItem.RSVPCount RSVPs</span>
+                                <span><i class="bi bi-calendar-event me-1"></i>@eventItem.EventDate.ToString("MMM dd, yyyy")</span>
+                                <span class="rsvp-count"><i class="bi bi-check-circle me-1"></i>@eventItem.RSVPCount RSVPs</span>
                             </div>
                         </div>
                     }

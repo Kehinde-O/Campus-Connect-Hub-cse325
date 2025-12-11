@@ -4,9 +4,9 @@
 The app might be hanging during startup because database initialization is blocking.
 
 ## What I Just Fixed
-1. ✅ Made database initialization non-blocking (runs in background)
-2. ✅ Added timeouts to GitHub Actions workflow
-3. ✅ Prevents app from hanging during startup
+1. Made database initialization non-blocking (runs in background)
+2. Added timeouts to GitHub Actions workflow
+3. Prevents app from hanging during startup
 
 ## IMMEDIATE ACTION REQUIRED
 

@@ -39,16 +39,16 @@
 - `CampusConnectHub.Shared/` - Compiled into Server DLL
 
 ### Pros
-- ✅ Static Web Apps has FREE tier
-- ✅ Better separation of concerns
-- ✅ Can scale independently
-- ✅ Static Web Apps optimized for static content
-- ✅ Automatic HTTPS and CDN
+- Static Web Apps has FREE tier
+- Better separation of concerns
+- Can scale independently
+- Static Web Apps optimized for static content
+- Automatic HTTPS and CDN
 
 ### Cons
-- ❌ Need to manage 2 services
-- ❌ Need to configure CORS between them
-- ❌ Two separate domains
+- Need to manage 2 services
+- Need to configure CORS between them
+- Two separate domains
 
 ---
 
@@ -95,15 +95,15 @@
    ```
 
 ### Pros
-- ✅ Single service to manage
-- ✅ Same domain (no CORS issues)
-- ✅ Simpler deployment
-- ✅ Lower cost (one App Service)
+- Single service to manage
+- Same domain (no CORS issues)
+- Simpler deployment
+- Lower cost (one App Service)
 
 ### Cons
-- ❌ No free tier (App Service costs money)
-- ❌ Less optimal for static content
-- ❌ Frontend and backend scale together
+- No free tier (App Service costs money)
+- Less optimal for static content
+- Frontend and backend scale together
 
 ---
 

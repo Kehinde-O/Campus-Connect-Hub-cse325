@@ -1,6 +1,6 @@
 # Single App Service Setup - Complete Guide
 
-## ✅ Configuration Complete!
+## Configuration Complete!
 
 Your application is now configured for **Option 2: Single App Service** deployment.
 
@@ -15,20 +15,20 @@ Both frontend and backend will be accessible from this single domain:
 ## What Was Changed
 
 ### 1. Server Configuration (`CampusConnectHub.Server/Program.cs`)
-- ✅ Added static file serving: `app.UseDefaultFiles()` and `app.UseStaticFiles()`
-- ✅ Added SPA fallback: `app.MapFallbackToFile("index.html")` for client-side routing
-- ✅ Simplified CORS (same domain, no CORS issues)
+- Added static file serving: `app.UseDefaultFiles()` and `app.UseStaticFiles()`
+- Added SPA fallback: `app.MapFallbackToFile("index.html")` for client-side routing
+- Simplified CORS (same domain, no CORS issues)
 
 ### 2. Client Configuration (`CampusConnectHub.Client/Program.cs`)
-- ✅ Updated to use same domain for API calls in production
-- ✅ Removed separate API URL configuration
+- Updated to use same domain for API calls in production
+- Removed separate API URL configuration
 
 ### 3. Deployment Workflow (`.github/workflows/main_campus-connect-hub.yml`)
-- ✅ Builds both Client and Server projects
-- ✅ Publishes Client to get `wwwroot` folder
-- ✅ Publishes Server
-- ✅ Copies Client's `wwwroot` to Server's `wwwroot`
-- ✅ Deploys combined package to App Service
+- Builds both Client and Server projects
+- Publishes Client to get `wwwroot` folder
+- Publishes Server
+- Copies Client's `wwwroot` to Server's `wwwroot`
+- Deploys combined package to App Service
 
 ## How It Works
 
@@ -116,10 +116,10 @@ Since frontend and backend are on the same domain, CORS is not required.
 
 ## Benefits of This Setup
 
-✅ **Single Service**: One App Service to manage
-✅ **Same Domain**: No CORS configuration needed
-✅ **Simple Deployment**: One workflow deploys everything
-✅ **Cost Effective**: One service (though not free like Static Web Apps)
+**Single Service**: One App Service to manage
+**Same Domain**: No CORS configuration needed
+**Simple Deployment**: One workflow deploys everything
+**Cost Effective**: One service (though not free like Static Web Apps)
 
 ## Next Steps
 
@@ -128,5 +128,5 @@ Since frontend and backend are on the same domain, CORS is not required.
 3. **Configure Azure**: Set application settings in Azure Portal
 4. **Test**: Access your domain and verify everything works
 
-Your application is now ready for single App Service deployment! 🚀
+Your application is now ready for single App Service deployment!
 

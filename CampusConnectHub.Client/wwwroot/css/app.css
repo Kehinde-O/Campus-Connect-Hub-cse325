@@ -194,15 +194,15 @@ a:hover {
     color: var(--text-primary);
     background-color: var(--bg-surface);
     background-clip: padding-box;
-    border: 1px solid #cbd5e0;
+    border: 2px solid #9ca3af;
     border-radius: var(--radius-md);
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .form-control:focus, select:focus, input:focus {
-    border-color: var(--secondary-color);
+    border-color: var(--primary-color);
     outline: 0;
-    box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.2);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 label {
@@ -244,20 +244,60 @@ label {
 /* Status Badges */
 .badge {
     display: inline-block;
-    padding: 0.25em 0.6em;
-    font-size: 75%;
+    padding: 0.5em 0.9em;
+    font-size: 0.875rem;
     font-weight: 700;
     line-height: 1;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: var(--radius-md);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.badge-success { background-color: #c6f6d5; color: #22543d; }
-.badge-warning { background-color: #feebc8; color: #744210; }
-.badge-danger { background-color: #fed7d7; color: #822727; }
-.badge-info { background-color: #bee3f8; color: #2a4365; }
+.badge-success { 
+    background-color: #c6f6d5; 
+    color: #22543d; 
+    border-color: rgba(34, 84, 61, 0.2);
+}
+
+.badge-warning { 
+    background-color: #feebc8; 
+    color: #744210; 
+    border-color: rgba(116, 66, 16, 0.2);
+}
+
+.badge-danger { 
+    background-color: #fed7d7; 
+    color: #822727; 
+    border-color: rgba(130, 39, 39, 0.2);
+}
+
+.badge-info { 
+    background-color: #bee3f8; 
+    color: #2a4365; 
+    border-color: rgba(42, 67, 101, 0.2);
+}
+
+/* Enhanced badge variants for better visibility */
+.badge.bg-secondary.text-primary {
+    background-color: #e2e8f0 !important;
+    color: #1e293b !important;
+    border-color: rgba(30, 41, 59, 0.2) !important;
+}
+
+.badge.bg-secondary.text-light {
+    background-color: #64748b !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.badge.bg-primary {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
 
 /* Loading */
 .loading-spinner {
@@ -296,6 +336,8 @@ label {
     background-color: var(--bg-primary);
     min-height: calc(100vh - 60px); /* Adjust based on topbar height */
     padding: var(--spacing-lg);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 :root {
@@ -481,7 +523,7 @@ a:hover, .btn-link:hover {
     font-family: var(--font-family-base);
     color: var(--text-primary);
     background: var(--bg-primary);
-    border: 2px solid #e0e0e0;
+    border: 2px solid #9ca3af;
     border-radius: var(--radius-md);
     transition: all var(--transition-base);
 }

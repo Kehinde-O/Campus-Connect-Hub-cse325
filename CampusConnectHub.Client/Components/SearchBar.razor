@@ -2,7 +2,7 @@
 
 <div class="search-bar-container">
     <div class="search-input-wrapper">
-        <span class="search-icon">🔍</span>
+        <i class="bi bi-search search-icon"></i>
         <InputText @bind-Value="searchText" 
                    class="search-input" 
                    placeholder="@Placeholder"
@@ -99,12 +99,13 @@
         color: var(--text-secondary);
         font-size: var(--font-size-lg);
         z-index: 1;
+        pointer-events: none;
     }
 
     .search-input {
         width: 100%;
         padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) calc(var(--spacing-xl) + var(--spacing-md));
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
         border-radius: var(--radius-md);
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
@@ -153,7 +154,7 @@
 
     .filter-input {
         padding: var(--spacing-md);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
         border-radius: var(--radius-md);
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
