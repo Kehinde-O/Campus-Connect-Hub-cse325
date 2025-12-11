@@ -38,10 +38,22 @@ jobs:
 
       - name: Copy Client wwwroot to Server wwwroot
         run: |
-          # Create wwwroot directory in server publish folder
-          New-Item -ItemType Directory -Force -Path ./server-publish/wwwroot
-          # Copy all files from client wwwroot to server wwwroot
-          Copy-Item -Path ./client-publish/wwwroot/* -Destination ./server-publish/wwwroot/ -Recurse -Force
+          # Create wwwroot directory in server publish folder if it doesn't exist
+          if (-not (Test-Path ./server-publish/wwwroot)) {
+            New-Item -ItemType Directory -Force -Path ./server-publish/wwwroot
+          }
+          # Verify client wwwroot exists
+          if (Test-Path ./client-publish/wwwroot) {
+            # Copy all files from client wwwroot to server wwwroot
+            Copy-Item -Path ./client-publish/wwwroot/* -Destination ./server-publish/wwwroot/ -Recurse -Force
+            Write-Host "Files copied successfully"
+            # List files to verify
+            Get-ChildItem -Path ./server-publish/wwwroot -Recurse | Select-Object FullName
+          } else {
+            Write-Host "ERROR: client-publish/wwwroot does not exist!"
+            Get-ChildItem -Path ./client-publish -Recurse | Select-Object FullName
+            exit 1
+          }
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

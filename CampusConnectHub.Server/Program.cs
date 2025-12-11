@@ -80,17 +80,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowBlazorClient");
-app.UseAuthentication();
-app.UseAuthorization();
 
 // Serve static files from wwwroot (for Blazor WebAssembly frontend)
+// MUST be before authentication/authorization to allow access to static files
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Map API controllers
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Map API controllers - these take precedence over static files for /api/* routes
 app.MapControllers();
 
 // Fallback to index.html for client-side routing (SPA)
+// This must be last to catch all non-API routes and serve the Blazor app
 app.MapFallbackToFile("index.html");
 
 // Ensure database is created and seeded
