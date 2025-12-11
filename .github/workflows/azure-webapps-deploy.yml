@@ -36,9 +36,9 @@ jobs:
       run: dotnet build --no-restore --configuration Release
       working-directory: .
 
-    - name: Publish
-      run: dotnet publish --no-build --configuration Release --output ./publish
-      working-directory: ./CampusConnectHub.Server
+      - name: Publish
+        run: dotnet publish --no-build --configuration Release --output ./CampusConnectHub.Server/publish
+        working-directory: ./CampusConnectHub.Server
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v3
